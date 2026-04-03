@@ -9,7 +9,7 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: true          # PostgreSQL: GENERATED ALWAYS AS IDENTITY
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -19,20 +19,20 @@ databaseChangeLog:
                   type: VARCHAR(50)
                   constraints:
                     nullable: false
-                    unique: true               # уникальный логин
+                    unique: true
 
               - column:
                   name: email
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
-                    unique: true               # один аккаунт на имейл
+                    unique: true
 
               - column:
                   name: password_hash
                   type: VARCHAR(255)
                   constraints:
-                    nullable: false            # Spring Security сюда кладёт bcrypt хэш
+                    nullable: false
 
               - column:
                   name: full_name
@@ -50,19 +50,17 @@ databaseChangeLog:
               - column:
                   name: is_active
                   type: BOOLEAN
-                  defaultValueBoolean: true    # при регистрации аккаунт сразу активен
+                  defaultValueBoolean: true
                   constraints:
                     nullable: false
 
               - column:
                   name: created_at
-                  type: TIMESTAMPTZ            # TIMESTAMPTZ хранит время с таймзоной (лучше чем TIMESTAMP)
+                  type: TIMESTAMPTZ
                   defaultValueComputed: NOW()
                   constraints:
                     nullable: false
 
-        # CHECK constraint: role может быть только одним из трёх значений
-        # Делаем через sql, потому что Liquibase YAML не имеет отдельного тега для CHECK
         - sql:
             sql: >
               ALTER TABLE users
