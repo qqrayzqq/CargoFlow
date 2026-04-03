@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: V001-init-placeholder
+      author: cargoflow
+      comment: "Placeholder — будет заменён реальной схемой на следующем шаге"
+      changes:
+        - sql:
+            sql: "SELECT 1"  # пустая миграция, просто чтобы приложение стартануло

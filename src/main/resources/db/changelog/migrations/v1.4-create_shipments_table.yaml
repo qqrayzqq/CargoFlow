@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.4-create-shipments-table
+      author: cargodflow
+      changes:
+        - createTable:
+            tableName: shipments
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: tracking_number
+                  type: VARCHAR(50)
+                  constraints:
+                    unique: true
+                    nullable: false
+
+              - column:
+                  name: shipper_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_shipments_shipper
+                    references: users(id)
+                    nullable: false
+
+              - column:
+                  name: carrier_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_shipments_carrier
+                    references: carriers(id)
+                    nullable: false
+
+              - column:
+                  name: from_address_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_shipments_from_addresses
+                    references: addresses(id)
+                    nullable: false
+
+              - column:
+                  name: to_address_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_shipments_to_addresses
+                    references: addresses(id)
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  defaultValue: CREATED
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - sql:
+            sql:
+              ALTER TABLE shipments
+              ADD CONSTRAINT chk_status
+              CHECK (status IN (
+              'CREATED', 'PICKED_UP', 'IN_TRANSIT', 'AT_HUB',
+              'OUT_FOR_DELIVERY', 'DELIVERED',
+              'FAILED_ATTEMPT', 'RETURNED', 'CANCELLED'
+              ));

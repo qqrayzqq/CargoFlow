@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: cargoflow_practice
+
+  # --- PostgreSQL DataSource ---
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cargoflow
+    username: cargoflow
+    password: cargoflow
+    driver-class-name: org.postgresql.Driver
+
+  # --- jOOQ ---
+  jooq:
+    sql-dialect: POSTGRES
+
+  # --- Liquibase: запускает SQL-миграции при старте приложения ---
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  # --- Elasticsearch ---
+  elasticsearch:
+    uris: http://localhost:9200
+
+  # --- GraphQL ---
+  graphql:
+    graphiql:
+      enabled: true      # включаем браузерный UI для тестирования GraphQL запросов
+    http:
+      path: /graphql
+
+  # --- Spring Docker Compose: автоматически стартует compose.yaml при запуске приложения ---
+  docker:
+    compose:
+      lifecycle-management: start-and-stop  # поднимает при старте, гасит при остановке
+
+server:
+  port: 8080

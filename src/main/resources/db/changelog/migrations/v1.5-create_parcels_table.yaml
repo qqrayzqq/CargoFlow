@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.5-create-parcels-table
+      author: cargoflow
+      changes:
+        - createTable:
+            tableName: parcels
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: shipment_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_parcels_shipment
+                    references: shipments(id)
+                    nullable: false
+
+              - column:
+                  name: weight
+                  type: DECIMAL(8, 2)        # до 999999.99 кг, 2 знака после запятой
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: width
+                  type: DECIMAL(8, 2)        # сантиметры
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: height
+                  type: DECIMAL(8, 2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: length
+                  type: DECIMAL(8, 2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: is_fragile
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true           # не всегда известно что внутри

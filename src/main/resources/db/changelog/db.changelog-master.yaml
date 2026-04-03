@@ -1,0 +1,19 @@
+databaseChangeLog:
+  # Подключаем файлы миграций по порядку.
+  # Каждый новый файл добавляем сюда — Liquibase выполнит их последовательно.
+  # Уже выполненные миграции Liquibase НЕ повторяет (хранит историю в databasechangelog).
+
+  - include:
+      file: db/changelog/migrations/v1.0-placeholder.yaml
+  - include:
+      file: db/changelog/migrations/v1.1-create_users_table.yaml
+  - include:
+      file: db/changelog/migrations/v1.2-create_carriers_table.yaml
+  - include:
+      file: db/changelog/migrations/v1.3-create_addresses_table.yaml
+  - include:
+      file: db/changelog/migrations/v1.4-create_shipments_table.yaml
+  - include:
+      file: db/changelog/migrations/v1.5-create_parcels_table.yaml
+  - include:
+      file: db/changelog/migrations/v1.6-create_shipment_events_table.yaml

@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: 'postgres:17'
+    environment:
+      - POSTGRES_DB=cargoflow
+      - POSTGRES_USER=cargoflow
+      - POSTGRES_PASSWORD=cargoflow
+    ports:
+      - '5432:5432'    # хост:контейнер — доступно снаружи (нужно jOOQ codegen)
+    volumes:
+      - cargoflow_pg_data:/var/lib/postgresql/data  # данные не теряются при restart
+
+  elasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:9.0.0'
+    environment:
+      - discovery.type=single-node      # режим одной ноды (для локала)
+      - xpack.security.enabled=false    # отключаем авторизацию ES (локал)
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # ограничиваем память — важно на Windows
+    ports:
+      - '9200:9200'    # REST API ES
+
+volumes:
+  cargoflow_pg_data:   # именованный volume — postgres данные живут между перезапусками

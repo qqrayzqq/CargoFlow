@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.6-create-shipment-events-table
+      author: cargoflow
+      changes:
+        - createTable:
+            tableName: shipment_events
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: shipment_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_events_shipment
+                    references: shipments(id)
+                    nullable: false
+
+              - column:
+                  name: status               # какой статус был выставлен этим событием
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: location             # где физически находилась посылка в момент события
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true           # не всегда известно (например при CANCELLED)
+
+              - column:
+                  name: comment              # доп. комментарий менеджера ("не открыли дверь")
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - sql:
+            sql: >
+              ALTER TABLE shipment_events
+              ADD CONSTRAINT chk_event_status
+              CHECK (status IN (
+                'CREATED', 'PICKED_UP', 'IN_TRANSIT', 'AT_HUB',
+                'OUT_FOR_DELIVERY', 'DELIVERED',
+                'FAILED_ATTEMPT', 'RETURNED', 'CANCELLED'
+              ));
