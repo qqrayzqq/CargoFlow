@@ -55,12 +55,13 @@ public class SecurityConfig {
         // Мы используем JWT в заголовках, поэтому CSRF нам не нужен.
         http.csrf(AbstractHttpConfigurer::disable);
 
-        // Правила доступа к эндпоинтам:
-        // /api/auth/** — публичные (регистрация, логин), токен не нужен.
-        // Всё остальное — только с валидным токеном.
+        // Правила доступа к эндпоинтам.
+        // Порядок важен: requestMatchers проверяются сверху вниз, первое совпадение побеждает.
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated());
+                .requestMatchers("/api/auth/**").permitAll()       // регистрация и логин — всем
+                .requestMatchers("/api/shipments/track/**").permitAll() // отслеживание посылки — всем
+                .requestMatchers("/graphiql/**").permitAll()            // GraphQL UI для тестирования — всем (только dev)
+                .anyRequest().authenticated());                    // всё остальное — только с токеном
 
         // Отключаем HTTP сессии — JWT сам несёт всю информацию о пользователе.
         // STATELESS = не создавать и не использовать сессии вообще.
