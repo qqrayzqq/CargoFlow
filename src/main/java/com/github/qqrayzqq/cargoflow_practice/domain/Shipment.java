@@ -25,7 +25,6 @@ public class Shipment {
 
     private OffsetDateTime createdAt;
 
-    // связанные объекты — заполняются вручную в репозитории через JOIN
     private User shipper;
 
     private Carrier carrier;

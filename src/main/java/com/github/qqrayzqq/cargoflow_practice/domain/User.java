@@ -21,7 +21,7 @@ public class User {
 
     private String email;
 
-    private String passwordHash;  // никогда не отдаём в GraphQL напрямую
+    private String passwordHash;
 
     private String fullName;
 
