@@ -34,3 +34,7 @@ build/
 
 ### jOOQ generated sources (regenerate via: ./mvnw generate-sources -P codegen) ###
 target/generated-sources/jooq/
+
+### Local secrets — never commit ###
+**/application-local.yaml
+**/application-local.yml

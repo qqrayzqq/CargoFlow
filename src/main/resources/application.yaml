@@ -2,6 +2,9 @@ spring:
   application:
     name: cargoflow_practice
 
+  profiles:
+    active: local   # использует application-local.yaml (не коммитится в git)
+
   # --- PostgreSQL DataSource ---
   datasource:
     url: jdbc:postgresql://localhost:5432/cargoflow
