@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.7-rename-address-column
+      author: cargoflow
+      comment: "Переименовываем колонку address → street чтобы избежать конфликта имён с таблицей addresses в jOOQ codegen"
+      changes:
+        - renameColumn:
+            tableName: addresses
+            oldColumnName: address
+            newColumnName: street
+            columnDataType: VARCHAR(255)

@@ -11,6 +11,6 @@ public class AddressDto {
     private String country;
     private String zip;
     private String city;
-    private String address;
+    private String street;
     private String buildingNumber;
 }
