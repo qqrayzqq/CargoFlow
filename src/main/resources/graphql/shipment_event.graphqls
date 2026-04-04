@@ -1,0 +1,21 @@
+type ShipmentEvent {
+    id: ID!
+    shipmentId: ID!
+    status: ShipmentStatus!
+    location: String
+    comment: String
+    createdAt: String!
+}
+
+extend type Query {
+    getEventsByShipmentId(shipmentId: ID!): [ShipmentEvent]
+}
+
+extend type Mutation {
+    addShipmentEvent(
+        shipmentId: ID!
+        status: ShipmentStatus!
+        location: String
+        comment: String
+    ): ShipmentEvent
+}

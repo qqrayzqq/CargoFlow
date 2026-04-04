@@ -1,0 +1,14 @@
+type Parcel {
+    id: ID!
+    shipmentId: ID!
+    weight: Float!
+    width: Float!
+    height: Float!
+    length: Float!
+    isFragile: Boolean!
+    description: String
+}
+
+extend type Query {
+    getParcelsByShipmentId(shipmentId: ID!): [Parcel]
+}

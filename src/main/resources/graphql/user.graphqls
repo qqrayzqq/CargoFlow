@@ -1,0 +1,46 @@
+enum UserRole{
+    SHIPPER,
+    MANAGER,
+    ADMIN
+}
+
+type User{
+    id: ID!
+    username: String!
+    email: String!
+    fullName: String!
+    isActive: Boolean!
+    role: UserRole!
+}
+
+input RegisterInput{
+    username: String!
+    email: String!
+    password: String!
+    fullName: String!
+}
+
+input LoginInput{
+    email: String!
+    password: String!
+}
+
+input UpdateUserInput{
+    username: String
+    email: String
+    password: String
+    fullName: String
+}
+
+extend type Query{
+    getUserById(id: ID!): User
+    getCurrentUser: User
+    getAllUsers: [User]
+}
+
+extend type Mutation{
+    register(input: RegisterInput!): String
+    login(input: LoginInput!): String
+    updateUser(input: UpdateUserInput!): Boolean
+    deactivateUser(id : ID!): Boolean
+}

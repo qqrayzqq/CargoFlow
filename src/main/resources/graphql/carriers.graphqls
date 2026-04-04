@@ -1,0 +1,22 @@
+type Carrier{
+    id: ID!
+    name: String!
+    contactPhone: String!
+    isActive: Boolean!
+}
+
+input CreateCarrierInput{
+    name: String!
+    contactPhone: String!
+}
+
+extend type Query {
+    getCarrierById(id: ID!): Carrier
+    getAllCarriers: [Carrier]
+    getCarrierByShipmentId(shipmentId: ID!): Carrier
+}
+
+extend type Mutation {
+    createCarrier(input: CreateCarrierInput!): Carrier
+    deactivateCarrier(id: ID!): Boolean
+}

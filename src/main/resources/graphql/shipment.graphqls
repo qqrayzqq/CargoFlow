@@ -1,0 +1,62 @@
+enum ShipmentStatus {
+    CREATED
+    PICKED_UP
+    IN_TRANSIT
+    AT_HUB
+    OUT_FOR_DELIVERY
+    DELIVERED
+    FAILED_ATTEMPT
+    RETURNED
+    CANCELLED
+}
+
+type Shipment {
+    id: ID!
+    trackingNumber: String!
+    status: ShipmentStatus!
+    createdAt: String!
+    shipper: User
+    carrier: Carrier
+    fromAddress: Address!
+    toAddress: Address!
+    parcels: [Parcel]
+    events: [ShipmentEvent]
+}
+
+input AddressInput {
+    country: String!
+    zip: String!
+    city: String!
+    address: String!
+    buildingNumber: String!
+}
+
+input CreateParcelInput {
+    weight: Float!
+    width: Float!
+    height: Float!
+    length: Float!
+    isFragile: Boolean!
+    description: String
+}
+
+input CreateShipmentInput {
+    fromAddress: AddressInput!
+    toAddress: AddressInput!
+    parcels: [CreateParcelInput!]!
+}
+
+extend type Query {
+    getShipmentById(id: ID!): Shipment
+    getShipmentByTrackingNumber(trackingNumber: String!): Shipment
+    getMyShipments: [Shipment]
+    getAllShipments: [Shipment]
+    searchShipments(query: String!): [Shipment]
+}
+
+extend type Mutation {
+    createShipment(input: CreateShipmentInput!): Shipment
+    updateShipmentStatus(id: ID!, status: ShipmentStatus!): Shipment
+    assignCarrier(shipmentId: ID!, carrierId: ID!): Shipment
+    cancelShipment(id: ID!): Boolean
+}
