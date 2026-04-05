@@ -19,4 +19,9 @@ public class Carrier {
     private String contactPhone;
 
     private boolean isActive;
+
+    public Carrier(String name, String contactPhone) {
+        this.name = name;
+        this.contactPhone = contactPhone;
+    }
 }
