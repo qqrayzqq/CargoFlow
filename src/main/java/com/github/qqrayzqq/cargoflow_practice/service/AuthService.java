@@ -1,6 +1,7 @@
 package com.github.qqrayzqq.cargoflow_practice.service;
 
 import com.github.qqrayzqq.cargoflow_practice.domain.User;
+import com.github.qqrayzqq.cargoflow_practice.domain.enums.UserRole;
 import com.github.qqrayzqq.cargoflow_practice.dto.user.LoginDto;
 import com.github.qqrayzqq.cargoflow_practice.dto.user.RegisterDto;
 import com.github.qqrayzqq.cargoflow_practice.exception.AlreadyExistsException;
@@ -47,6 +48,7 @@ public class AuthService {
         // Создаём нового пользователя — пароль хэшируем через BCrypt перед сохранением
         User newUser = new User(dto.getEmail(), dto.getUsername(), dto.getFullName(),
                 passwordEncoder.encode(dto.getPassword()));
+        newUser.setRole(UserRole.SHIPPER);
 
         userRepository.save(newUser); // сохраняем в БД
 

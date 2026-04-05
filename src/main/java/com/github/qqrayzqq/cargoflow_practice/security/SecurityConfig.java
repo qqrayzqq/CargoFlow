@@ -60,6 +60,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()       // регистрация и логин — всем
                 .requestMatchers("/api/shipments/track/**").permitAll() // отслеживание посылки — всем
+                .requestMatchers("/graphql").permitAll()
                 .requestMatchers("/graphiql/**").permitAll()            // GraphQL UI для тестирования — всем (только dev)
                 .anyRequest().authenticated());                    // всё остальное — только с токеном
 
