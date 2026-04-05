@@ -30,4 +30,11 @@ public class User {
     private boolean isActive;
 
     private OffsetDateTime createdAt;
+
+    public User(String email, String username, String fullName, String passwordHash) {
+        this.email = email;
+        this.username = username;
+        this.fullName = fullName;
+        this.passwordHash = passwordHash;
+    }
 }
