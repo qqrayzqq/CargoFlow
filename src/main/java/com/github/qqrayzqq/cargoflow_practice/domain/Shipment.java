@@ -36,4 +36,14 @@ public class Shipment {
     private List<Parcel> parcels = new ArrayList<>();
 
     private List<ShipmentEvent> events = new ArrayList<>();
+
+    public Shipment(String trackingNumber, ShipmentStatus status, OffsetDateTime createdAt, User shipper, Carrier carrier, Address fromAddress, Address toAddress) {
+        this.trackingNumber = trackingNumber;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.shipper = shipper;
+        this.carrier = carrier;
+        this.fromAddress = fromAddress;
+        this.toAddress = toAddress;
+    }
 }

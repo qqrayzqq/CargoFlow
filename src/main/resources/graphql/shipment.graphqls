@@ -57,6 +57,6 @@ extend type Query {
 extend type Mutation {
     createShipment(input: CreateShipmentInput!): Shipment
     updateShipmentStatus(id: ID!, status: ShipmentStatus!): Shipment
-    assignCarrier(shipmentId: ID!, carrierId: ID!): Shipment
+    assignCarrier(id: ID!, carrierId: ID!): Shipment
     cancelShipment(id: ID!): Boolean
 }

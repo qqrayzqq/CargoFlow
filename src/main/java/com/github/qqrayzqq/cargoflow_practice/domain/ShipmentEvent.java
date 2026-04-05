@@ -26,4 +26,12 @@ public class ShipmentEvent {
     private String comment;
 
     private OffsetDateTime createdAt;
+
+    public ShipmentEvent(Long shipmentId, ShipmentStatus shipmentStatus, String location, String comment, OffsetDateTime createdAt) {
+        this.shipmentId = shipmentId;
+        this.status = shipmentStatus;
+        this.location = location;
+        this.comment = comment;
+        this.createdAt = createdAt;
+    }
 }

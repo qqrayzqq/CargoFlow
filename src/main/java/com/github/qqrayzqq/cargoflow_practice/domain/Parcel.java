@@ -29,4 +29,14 @@ public class Parcel {
     private boolean isFragile;
 
     private String description;
+
+    public Parcel(Long shipmentId, BigDecimal weight, BigDecimal width, BigDecimal height, BigDecimal length, boolean fragile, String description) {
+        this.shipmentId = shipmentId;
+        this.weight = weight;
+        this.width = width;
+        this.height = height;
+        this.length = length;
+        this.isFragile = fragile;
+        this.description = description;
+    }
 }
