@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/migrations/v1.6-create_shipment_events_table.yaml
   - include:
       file: db/changelog/migrations/v1.7-rename_address_column.yaml
+  - include:
+      file: db/changelog/migrations/v1.8-make_carrier_nullable.yaml

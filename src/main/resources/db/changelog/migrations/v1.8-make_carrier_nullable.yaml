@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.8-make_carrier_nullable
+      author: qqrayzqq
+      changes:
+        - dropNotNullConstraint:
+            tableName: shipments
+            columnName: carrier_id
+            columnDataType: bigint
