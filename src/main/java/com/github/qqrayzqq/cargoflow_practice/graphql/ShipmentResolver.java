@@ -42,12 +42,6 @@ public class ShipmentResolver {
         return shipmentService.getAllShipments();
     }
 
-    @QueryMapping
-    @PreAuthorize("permitAll()")
-    public List<Shipment> searchShipments(@Argument String query) {
-        return shipmentService.searchShipments(query);
-    }
-
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
     public Shipment createShipment(@Argument CreateShipmentDto input) {

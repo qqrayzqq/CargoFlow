@@ -51,7 +51,6 @@ extend type Query {
     getShipmentByTrackingNumber(trackingNumber: String!): Shipment
     getMyShipments: [Shipment]
     getAllShipments: [Shipment]
-    searchShipments(query: String!): [Shipment]
 }
 
 extend type Mutation {

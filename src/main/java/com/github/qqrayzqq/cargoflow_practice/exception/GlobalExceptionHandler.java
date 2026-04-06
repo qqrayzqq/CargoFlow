@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
     // Ловим Exception — родитель всех исключений, срабатывает последним.
     // Клиенту не показываем детали — только общее сообщение, детали логируем на сервере.
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral() {
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)            // HTTP 500
                 .body(ErrorResponse.of(500, "Internal server error"));
