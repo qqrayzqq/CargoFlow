@@ -17,110 +17,113 @@ import static com.github.qqrayzqq.cargoflow_practice.jooq.Tables.*;
 public class ShipmentRepository {
 
     private final DSLContext dsl;
-    private final AddressRepository addressRepository;
     private final ParcelRepository parcelRepository;
 
-    public Optional<Shipment> findById(Long id) {
+    private Shipment mapRecord(org.jooq.Record record) {
         var FROM_ADDR = ADDRESSES.as("from_addr");
         var TO_ADDR = ADDRESSES.as("to_addr");
 
+        Carrier carrier = null;
+        if (record.get(CARRIERS.ID) != null) {
+            carrier = new Carrier();
+            carrier.setId(record.get(CARRIERS.ID));
+            carrier.setName(record.get(CARRIERS.NAME));
+            carrier.setContactPhone(record.get(CARRIERS.CONTACT_PHONE));
+            carrier.setActive(record.get(CARRIERS.IS_ACTIVE));
+        }
+
+        User shipper = new User();
+        shipper.setId(record.get(USERS.ID));
+        shipper.setUsername(record.get(USERS.USERNAME));
+        shipper.setEmail(record.get(USERS.EMAIL));
+        shipper.setFullName(record.get(USERS.FULL_NAME));
+        shipper.setRole(UserRole.valueOf(record.get(USERS.ROLE)));
+
+        Address fromAddress = new Address();
+        fromAddress.setId(record.get(FROM_ADDR.ID));
+        fromAddress.setCountry(record.get(FROM_ADDR.COUNTRY));
+        fromAddress.setCity(record.get(FROM_ADDR.CITY));
+        fromAddress.setZip(record.get(FROM_ADDR.ZIP));
+        fromAddress.setStreet(record.get(FROM_ADDR.STREET));
+        fromAddress.setBuildingNumber(record.get(FROM_ADDR.BUILDING_NUMBER));
+
+        Address toAddress = new Address();
+        toAddress.setId(record.get(TO_ADDR.ID));
+        toAddress.setCountry(record.get(TO_ADDR.COUNTRY));
+        toAddress.setCity(record.get(TO_ADDR.CITY));
+        toAddress.setZip(record.get(TO_ADDR.ZIP));
+        toAddress.setStreet(record.get(TO_ADDR.STREET));
+        toAddress.setBuildingNumber(record.get(TO_ADDR.BUILDING_NUMBER));
+
+        Shipment shipment = new Shipment();
+        shipment.setId(record.get(SHIPMENTS.ID));
+        shipment.setTrackingNumber(record.get(SHIPMENTS.TRACKING_NUMBER));
+        shipment.setStatus(ShipmentStatus.valueOf(record.get(SHIPMENTS.STATUS)));
+        shipment.setCreatedAt(record.get(SHIPMENTS.CREATED_AT));
+        shipment.setCarrier(carrier);
+        shipment.setShipper(shipper);
+        shipment.setFromAddress(fromAddress);
+        shipment.setToAddress(toAddress);
+
+        return shipment;
+    }
+
+    private org.jooq.SelectOnConditionStep<?> baseSelect() {
+        var FROM_ADDR = ADDRESSES.as("from_addr");
+        var TO_ADDR = ADDRESSES.as("to_addr");
+        return dsl.select()
+                .from(SHIPMENTS)
+                .leftJoin(CARRIERS).on(SHIPMENTS.CARRIER_ID.eq(CARRIERS.ID))
+                .join(USERS).on(SHIPMENTS.SHIPPER_ID.eq(USERS.ID))
+                .join(FROM_ADDR).on(SHIPMENTS.FROM_ADDRESS_ID.eq(FROM_ADDR.ID))
+                .join(TO_ADDR).on(SHIPMENTS.TO_ADDRESS_ID.eq(TO_ADDR.ID));
+    }
+
+    public Optional<Shipment> findById(Long id) {
         return Optional.ofNullable(
-                dsl.select()
-                        .from(SHIPMENTS)
-                        .join(CARRIERS).on(SHIPMENTS.CARRIER_ID.eq(CARRIERS.ID))
-                        .join(USERS).on(SHIPMENTS.SHIPPER_ID.eq(USERS.ID))
-                        .join(FROM_ADDR).on(SHIPMENTS.FROM_ADDRESS_ID.eq(FROM_ADDR.ID))
-                        .join(TO_ADDR).on(SHIPMENTS.TO_ADDRESS_ID.eq(TO_ADDR.ID))
+                baseSelect()
                         .where(SHIPMENTS.ID.eq(id))
-                        .fetchOne(record -> {
-                            Carrier carrier = new Carrier();
-                            carrier.setId(record.get(CARRIERS.ID));
-                            carrier.setName(record.get(CARRIERS.NAME));
-                            carrier.setContactPhone(record.get(CARRIERS.CONTACT_PHONE));
-                            carrier.setActive(record.get(CARRIERS.IS_ACTIVE));
-
-                            User shipper = new User();
-                            shipper.setId(record.get(USERS.ID));
-                            shipper.setUsername(record.get(USERS.USERNAME));
-                            shipper.setEmail(record.get(USERS.EMAIL));
-                            shipper.setFullName(record.get(USERS.FULL_NAME));
-                            shipper.setRole(UserRole.valueOf(record.get(USERS.ROLE)));
-
-                            Address fromAddress = new Address();
-                            fromAddress.setId(record.get(FROM_ADDR.ID));
-                            fromAddress.setCountry(record.get(FROM_ADDR.COUNTRY));
-                            fromAddress.setCity(record.get(FROM_ADDR.CITY));
-                            fromAddress.setZip(record.get(FROM_ADDR.ZIP));
-                            fromAddress.setStreet(record.get(FROM_ADDR.STREET));
-                            fromAddress.setBuildingNumber(record.get(FROM_ADDR.BUILDING_NUMBER));
-
-                            Address toAddress = new Address();
-                            toAddress.setId(record.get(TO_ADDR.ID));
-                            toAddress.setCountry(record.get(TO_ADDR.COUNTRY));
-                            toAddress.setCity(record.get(TO_ADDR.CITY));
-                            toAddress.setZip(record.get(TO_ADDR.ZIP));
-                            toAddress.setStreet(record.get(TO_ADDR.STREET));
-                            toAddress.setBuildingNumber(record.get(TO_ADDR.BUILDING_NUMBER));
-
-                            Shipment shipment = new Shipment();
-                            shipment.setId(record.get(SHIPMENTS.ID));
-                            shipment.setTrackingNumber(record.get(SHIPMENTS.TRACKING_NUMBER));
-                            shipment.setStatus(ShipmentStatus.valueOf(record.get(SHIPMENTS.STATUS)));
-                            shipment.setCreatedAt(record.get(SHIPMENTS.CREATED_AT));
-                            shipment.setCarrier(carrier);
-                            shipment.setShipper(shipper);
-                            shipment.setFromAddress(fromAddress);
-                            shipment.setToAddress(toAddress);
-
-                            return shipment;
-                        })
+                        .fetchOne(this::mapRecord)
         );
     }
 
     public Optional<Shipment> findByTrackingNumber(String trackingNumber) {
-        return dsl.selectFrom(SHIPMENTS)
-                .where(SHIPMENTS.TRACKING_NUMBER.eq(trackingNumber))
-                .fetchOptionalInto(Shipment.class);
+        return Optional.ofNullable(
+                baseSelect()
+                        .where(SHIPMENTS.TRACKING_NUMBER.eq(trackingNumber))
+                        .fetchOne(this::mapRecord)
+        );
     }
 
     public List<Shipment> findByShipperId(Long shipperId) {
-        return dsl.selectFrom(SHIPMENTS)
+        return baseSelect()
                 .where(SHIPMENTS.SHIPPER_ID.eq(shipperId))
-                .fetchInto(Shipment.class);
+                .fetch(this::mapRecord);
     }
 
     public List<Shipment> findAll() {
-        return dsl.selectFrom(SHIPMENTS)
-                .fetchInto(Shipment.class);
+        return baseSelect()
+                .fetch(this::mapRecord);
     }
 
     public Shipment save(Shipment shipment) {
-        // Шаг 1: сохраняем адрес отправки — получаем обратно объект с id из БД
-        Address savedFromAddress = addressRepository.save(shipment.getFromAddress());
-
-        // Шаг 2: сохраняем адрес доставки — аналогично
-        Address savedToAddress = addressRepository.save(shipment.getToAddress());
-
-        // Шаг 3: INSERT в shipments
-        // fromAddressId и toAddressId берём из только что сохранённых адресов
+        // Адреса уже сохранены сервисом — берём их id напрямую
         Long shipmentId = dsl.insertInto(SHIPMENTS)
                 .set(SHIPMENTS.TRACKING_NUMBER, shipment.getTrackingNumber())
                 .set(SHIPMENTS.STATUS, shipment.getStatus().name())
                 .set(SHIPMENTS.SHIPPER_ID, shipment.getShipper().getId())
                 .set(SHIPMENTS.CARRIER_ID,
                         shipment.getCarrier() != null ? shipment.getCarrier().getId() : null)
-                .set(SHIPMENTS.FROM_ADDRESS_ID, savedFromAddress.getId())
-                .set(SHIPMENTS.TO_ADDRESS_ID, savedToAddress.getId())
-                .returning(SHIPMENTS.ID)   // просим вернуть только id — нам этого достаточно
-                .fetchOne(SHIPMENTS.ID);   // вытаскиваем id как Long
+                .set(SHIPMENTS.FROM_ADDRESS_ID, shipment.getFromAddress().getId())
+                .set(SHIPMENTS.TO_ADDRESS_ID, shipment.getToAddress().getId())
+                .returning(SHIPMENTS.ID)
+                .fetchOne(SHIPMENTS.ID);
 
-        // Шаг 4: сохраняем посылки — каждой нужен shipmentId из шага 3
         if (shipment.getParcels() != null && !shipment.getParcels().isEmpty()) {
             shipment.getParcels().forEach(p -> p.setShipmentId(shipmentId));
             parcelRepository.saveAll(shipment.getParcels());
         }
 
-        // Шаг 5: возвращаем полный объект через findById с JOIN
         return findById(shipmentId).orElseThrow();
     }
 
