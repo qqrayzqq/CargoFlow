@@ -31,4 +31,13 @@ public class Address {
         this.street = street;
         this.buildingNumber = buildingNumber;
     }
+
+    public Address(Long id, String country, String zip, String city, String street, String buildingNumber) {
+        this.id = id;
+        this.country = country;
+        this.zip = zip;
+        this.city = city;
+        this.street = street;
+         this.buildingNumber = buildingNumber;
+    }
 }
