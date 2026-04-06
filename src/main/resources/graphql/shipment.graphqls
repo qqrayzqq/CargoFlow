@@ -50,7 +50,7 @@ extend type Query {
     getShipmentById(id: ID!): Shipment
     getShipmentByTrackingNumber(trackingNumber: String!): Shipment
     getMyShipments: [Shipment]
-    getAllShipments: [Shipment]
+    getAllShipments(page: Int = 0, size: Int = 20): [Shipment]
 }
 
 extend type Mutation {

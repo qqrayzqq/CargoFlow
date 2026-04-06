@@ -101,8 +101,10 @@ public class ShipmentRepository {
                 .fetch(this::mapRecord);
     }
 
-    public List<Shipment> findAll() {
+    public List<Shipment> findAll(int page, int size) {
         return baseSelect()
+                .limit(size)
+                .offset((long) page * size)
                 .fetch(this::mapRecord);
     }
 

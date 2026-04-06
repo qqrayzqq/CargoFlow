@@ -45,8 +45,8 @@ public class ShipmentService {
         return shipmentRepository.findByShipperId(user.getId());
     }
 
-    public List<Shipment> getAllShipments(){
-        return shipmentRepository.findAll();
+    public List<Shipment> getAllShipments(int page, int size){
+        return shipmentRepository.findAll(page, size);
     }
 
     @Transactional

@@ -38,8 +38,8 @@ public class ShipmentResolver {
 
     @QueryMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public List<Shipment> getAllShipments() {
-        return shipmentService.getAllShipments();
+    public List<Shipment> getAllShipments(@Argument Integer page, @Argument Integer size) {
+        return shipmentService.getAllShipments(page != null ? page : 0, size != null ? size : 20);
     }
 
     @MutationMapping
