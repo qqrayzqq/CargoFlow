@@ -17,7 +17,7 @@ services:
       - xpack.security.enabled=false    # отключаем авторизацию ES (локал)
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # ограничиваем память — важно на Windows
     ports:
-      - '9200:9200'    # REST API ES
+      - '9201:9200'    # REST API ES (9201 чтобы не конфликтовать с другими проектами)
 
 volumes:
   cargoflow_pg_data:   # именованный volume — postgres данные живут между перезапусками

@@ -22,7 +22,7 @@ spring:
 
   # --- Elasticsearch ---
   elasticsearch:
-    uris: http://localhost:9200
+    uris: http://localhost:9201
 
   # --- GraphQL ---
   graphql:
