@@ -62,12 +62,10 @@ public class UserRepository {
                 .fetchOneInto(User.class);
     }
 
-    public boolean deactivate(Long id) {
-        int updatedRows = dsl.update(USERS)
+    public void deactivate(Long id) {
+        dsl.update(USERS)
                 .set(USERS.IS_ACTIVE, false)
                 .where(USERS.ID.eq(id))
                 .execute();
-
-        return updatedRows > 0;
     }
 }
