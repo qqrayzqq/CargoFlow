@@ -5,6 +5,7 @@ import com.github.qqrayzqq.cargoflow_practice.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow_practice.dto.shipment.CreateShipmentDto;
 import com.github.qqrayzqq.cargoflow_practice.service.ShipmentService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -44,7 +45,7 @@ public class ShipmentResolver {
 
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
-    public Shipment createShipment(@Argument CreateShipmentDto input) {
+    public Shipment createShipment(@Argument @Valid CreateShipmentDto input) {
         return shipmentService.createShipment(input);
     }
 

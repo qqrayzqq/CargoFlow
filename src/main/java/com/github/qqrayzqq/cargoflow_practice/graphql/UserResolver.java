@@ -4,6 +4,7 @@ import com.github.qqrayzqq.cargoflow_practice.domain.User;
 import com.github.qqrayzqq.cargoflow_practice.dto.user.UpdateUserDto;
 import com.github.qqrayzqq.cargoflow_practice.service.UserService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -37,7 +38,7 @@ public class UserResolver {
 
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
-    public Boolean updateUser(@Argument UpdateUserDto input){
+    public Boolean updateUser(@Argument @Valid UpdateUserDto input){
         return userService.updateUser(input);
     }
 
