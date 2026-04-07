@@ -8,6 +8,7 @@ import com.github.qqrayzqq.cargoflow_practice.exception.InvalidCredentialsExcept
 import com.github.qqrayzqq.cargoflow_practice.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow_practice.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ShipmentService {
@@ -56,6 +58,7 @@ public class ShipmentService {
         if(auth == null || !auth.isAuthenticated()){
             throw new InvalidCredentialsException();
         }
+        log.info("Creating shipment for user: {}", auth.getName());
         Address fromAddress = addressRepository.save(new Address(dto.getFromAddress().getCountry(), dto.getFromAddress().getZip(), dto.getFromAddress().getCity(), dto.getFromAddress().getStreet(), dto.getFromAddress().getBuildingNumber()));
         applicationEventPublisher.publishEvent(new AddressEventDTO(
                 fromAddress.getId(), fromAddress.getCity(), fromAddress.getStreet(),
@@ -75,23 +78,27 @@ public class ShipmentService {
         Shipment saved = shipmentRepository.save(newShipment);
         ShipmentEvent shipmentEvent = shipmentEventRepository.save(new ShipmentEvent(saved.getId(), ShipmentStatus.CREATED, null, null, OffsetDateTime.now()));
         saved.getEvents().add(shipmentEvent);
+        log.info("Shipment created: tracking={}", saved.getTrackingNumber());
         return saved;
     }
 
     public Shipment updateShipmentStatus(Long id, ShipmentStatus status){
         shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        log.info("Shipment {} status changed to {}", id, status);
         return shipmentRepository.updateStatus(id, status);
     }
 
     public Shipment assignCarrier(Long id, Long carrierId) {
         shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
         carrierRepository.findById(carrierId).orElseThrow(() -> new NotFoundException("Carrier not found"));
+        log.info("Carrier {} assigned to shipment {}", carrierId, id);
         return shipmentRepository.assignCarrier(id, carrierId);
     }
 
     public Boolean cancelShipment(Long id){
         shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
         shipmentRepository.updateStatus(id, ShipmentStatus.CANCELLED);
+        log.info("Shipment {} status changed to CANCELLED", id);
         return true;
     }
 }

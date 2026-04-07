@@ -5,10 +5,12 @@ import com.github.qqrayzqq.cargoflow_practice.dto.carrier.CreateCarrierDto;
 import com.github.qqrayzqq.cargoflow_practice.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow_practice.repository.CarrierRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CarrierService {
@@ -28,6 +30,8 @@ public class CarrierService {
 
     public Carrier createCarrier(CreateCarrierDto dto){
         Carrier newCarrier = new Carrier(dto.getName(), dto.getContactPhone());
+
+        log.info("Carrier {} created", newCarrier.getName());
         return carrierRepository.save(newCarrier);
     }
 
@@ -36,6 +40,8 @@ public class CarrierService {
             throw new NotFoundException("Carrier not found");
         }
         carrierRepository.deactivate(id);
+
+        log.info("Carrier {} deactivated", carrierRepository.findById(id).get().getName());
         return true;
     }
 }

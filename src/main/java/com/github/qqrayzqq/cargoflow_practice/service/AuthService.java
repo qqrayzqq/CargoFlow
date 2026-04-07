@@ -11,9 +11,11 @@ import com.github.qqrayzqq.cargoflow_practice.repository.UserRepository;
 import com.github.qqrayzqq.cargoflow_practice.security.JwtService;
 import com.github.qqrayzqq.cargoflow_practice.security.UserDetailsPrincipal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -22,22 +24,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public String login(LoginDto dto) {
-        // Ищем пользователя по email. Если не найден — 404.
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        // Сравниваем введённый пароль с хэшем в БД через BCrypt.
-        // Намеренно бросаем одно исключение для обоих случаев — не раскрываем что именно неверно.
         if (!passwordEncoder.matches(dto.getPassword(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
 
-        // Оборачиваем User в UserDetailsPrincipal и генерируем токен
+        log.info("User {} logged in", user.getUsername());
         return jwtService.generateToken(new UserDetailsPrincipal(user));
     }
 
     public String register(RegisterDto dto) {
-        // Проверяем что username и email ещё не заняты — если заняты, 409 Conflict
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new AlreadyExistsException("Username is already taken");
         }
@@ -45,14 +43,13 @@ public class AuthService {
             throw new AlreadyExistsException("Email is already taken");
         }
 
-        // Создаём нового пользователя — пароль хэшируем через BCrypt перед сохранением
         User newUser = new User(dto.getEmail(), dto.getUsername(), dto.getFullName(),
                 passwordEncoder.encode(dto.getPassword()));
         newUser.setRole(UserRole.SHIPPER);
 
-        userRepository.save(newUser); // сохраняем в БД
+        userRepository.save(newUser);
 
-        // Сразу генерируем токен — пользователь залогинен после регистрации
+        log.info("User {} registered", newUser.getUsername());
         return jwtService.generateToken(new UserDetailsPrincipal(newUser));
     }
 }

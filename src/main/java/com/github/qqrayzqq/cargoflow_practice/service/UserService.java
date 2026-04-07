@@ -7,12 +7,14 @@ import com.github.qqrayzqq.cargoflow_practice.exception.InvalidCredentialsExcept
 import com.github.qqrayzqq.cargoflow_practice.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow_practice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -57,6 +59,8 @@ public class UserService {
             user.setEmail(dto.getEmail());
         }
         userRepository.save(user);
+
+        log.info("User {} updated profile", user.getUsername());
         return true;
     }
 
@@ -65,6 +69,7 @@ public class UserService {
             throw new NotFoundException("User not found");
         }
         userRepository.deactivate(id);
+        log.info("User {} username was deactivated", userRepository.findById(id).get().getUsername());
         return true;
     }
 
