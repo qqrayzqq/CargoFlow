@@ -196,7 +196,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>target/generated-sources/jooq</source>
+                                <source>src/generated/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -263,7 +263,7 @@
                                 </generate>
                                 <target>
                                     <packageName>com.github.qqrayzqq.cargoflow_practice.jooq</packageName>
-                                    <directory>target/generated-sources/jooq</directory>
+                                    <directory>src/generated/java</directory>
                                 </target>
                             </generator>
                         </configuration>
