@@ -38,3 +38,5 @@ target/generated-sources/jooq/
 ### Local secrets — never commit ###
 **/application-local.yaml
 **/application-local.yml
+
+logs/
