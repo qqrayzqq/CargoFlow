@@ -15,9 +15,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -36,9 +37,18 @@ class ShipmentServiceTest {
     @Mock UserRepository userRepository;
     @Mock CarrierRepository carrierRepository;
     @Mock AddressRepository addressRepository;
+    @Mock ShipmentEventRepository shipmentEventRepository;
+    @Mock ApplicationEventPublisher applicationEventPublisher;
 
-    @InjectMocks
     ShipmentService shipmentService;
+
+    @BeforeEach
+    void setUp() {
+        shipmentService = new ShipmentService(
+                shipmentRepository, userRepository, carrierRepository,
+                addressRepository, shipmentEventRepository, applicationEventPublisher
+        );
+    }
 
     @Nested
     class testGetShipmentById{
