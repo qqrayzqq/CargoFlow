@@ -38,3 +38,10 @@ spring:
 
 server:
   port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.github.qqrayzqq.cargoflow_practice : DEBUG
+  file:
+    name: logs/cargoflow.log
