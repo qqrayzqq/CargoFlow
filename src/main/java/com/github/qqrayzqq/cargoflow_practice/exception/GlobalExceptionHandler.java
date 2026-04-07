@@ -1,49 +1,65 @@
 package com.github.qqrayzqq.cargoflow_practice.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import graphql.GraphQLError;
+import graphql.GraphqlErrorBuilder;
+import graphql.schema.DataFetchingEnvironment;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
+import org.springframework.graphql.execution.ErrorType;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
-// @RestControllerAdvice — говорит Spring: этот класс перехватывает исключения из всех контроллеров.
-// Без него каждое непойманное исключение вернёт клиенту 500 Internal Server Error с HTML страницей.
-@RestControllerAdvice
+@Slf4j          // генерирует поле: private static final Logger log = LoggerFactory.getLogger(...)
+@ControllerAdvice   // говорит Spring: этот класс перехватывает исключения из всех контроллеров и резолверов
 public class GlobalExceptionHandler {
 
-    // @ExceptionHandler(X.class) — этот метод вызывается когда где-то в коде бросается исключение типа X.
-    // Spring сам его поймает, вызовет нужный метод и вернёт клиенту правильный HTTP ответ.
-
-    // 404 — ресурс не найден
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)                        // HTTP 404
-                .body(ErrorResponse.of(404, ex.getMessage())); // тело ответа с сообщением из исключения
+    // Вызывается когда где-то в коде бросается NotFoundException.
+    // Возвращает GraphQLError — Spring GraphQL кладёт его в поле errors[] ответа.
+    @GraphQlExceptionHandler(NotFoundException.class)   // слушаем конкретный тип исключения
+    public GraphQLError handleNotFound(NotFoundException ex, DataFetchingEnvironment env) {
+        log.warn("Not found: {}", ex.getMessage());     // пишем в лог на уровне WARN — ожидаемая ситуация, не баг
+        return GraphqlErrorBuilder.newError()           // начинаем строить объект ошибки
+                .errorType(ErrorType.NOT_FOUND)         // тип ошибки — попадёт в extensions.classification в ответе
+                .message(ex.getMessage())               // текст ошибки — попадёт в errors[0].message
+                .path(env.getExecutionStepInfo().getPath())         // путь резолвера: ["getShipmentById"]
+                .location(env.getField().getSourceLocation())       // строка в GraphQL запросе где произошла ошибка
+                .build();                               // собираем объект GraphQLError
     }
 
-    // 409 — конфликт, ресурс уже существует
-    @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleAlreadyExists(AlreadyExistsException ex) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)                         // HTTP 409
-                .body(ErrorResponse.of(409, ex.getMessage()));
+    // Вызывается при попытке создать дубликат (пользователь уже существует и т.д.)
+    @GraphQlExceptionHandler(AlreadyExistsException.class)
+    public GraphQLError handleAlreadyExist(AlreadyExistsException ex, DataFetchingEnvironment env) {
+        log.warn("Already exists: {}", ex.getMessage());
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(ex.getMessage())
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
     }
 
-    // 401 — неверные учётные данные (логин/пароль)
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)                     // HTTP 401
-                .body(ErrorResponse.of(401, ex.getMessage()));
+    // Вызывается при неверном логине или пароле
+    @GraphQlExceptionHandler(InvalidCredentialsException.class)
+    public GraphQLError handleInvalidCredentials(InvalidCredentialsException ex, DataFetchingEnvironment env) {
+        log.warn("Auth failed: {}", ex.getMessage());
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.UNAUTHORIZED)
+                .message(ex.getMessage())
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
     }
 
-    // 500 — всё остальное что мы не предусмотрели.
-    // Ловим Exception — родитель всех исключений, срабатывает последним.
-    // Клиенту не показываем детали — только общее сообщение, детали логируем на сервере.
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)            // HTTP 500
-                .body(ErrorResponse.of(500, "Internal server error"));
+    // Последний рубеж — ловит всё что не поймали выше.
+    // Клиенту не показываем детали (могут содержать внутреннюю информацию).
+    // log.error с третьим аргументом ex — печатает полный stacktrace в лог файл.
+    @GraphQlExceptionHandler(Exception.class)
+    public GraphQLError handleGeneral(Exception ex, DataFetchingEnvironment env) {
+        log.error("Unexpected error at {}: {}", env.getExecutionStepInfo().getPath(), ex.getMessage(), ex);
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.INTERNAL_ERROR)
+                .message("Internal server error")
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
     }
 }
