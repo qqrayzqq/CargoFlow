@@ -36,4 +36,5 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      - run: chmod +x mvnw
       - run: ./mvnw test
