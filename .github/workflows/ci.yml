@@ -30,6 +30,7 @@ jobs:
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_DOCKER_COMPOSE_LIFECYCLE_MANAGEMENT: none
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_EXPIRATION: 86400000
 
     steps:
       - uses: actions/checkout@v4
