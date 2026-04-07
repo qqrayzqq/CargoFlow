@@ -41,7 +41,8 @@ server:
 
 logging:
   level:
-    root: INFO
+    root: WARN
     com.github.qqrayzqq.cargoflow_practice : DEBUG
+    liquibase: INFO
   file:
     name: logs/cargoflow.log
