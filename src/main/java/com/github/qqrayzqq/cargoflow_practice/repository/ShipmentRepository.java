@@ -46,6 +46,8 @@ public class ShipmentRepository {
         fromAddress.setZip(record.get(FROM_ADDR.ZIP));
         fromAddress.setStreet(record.get(FROM_ADDR.STREET));
         fromAddress.setBuildingNumber(record.get(FROM_ADDR.BUILDING_NUMBER));
+        fromAddress.setLatitude(record.get(FROM_ADDR.LATITUDE));
+        fromAddress.setLongitude(record.get(FROM_ADDR.LONGITUDE));
 
         Address toAddress = new Address();
         toAddress.setId(record.get(TO_ADDR.ID));
@@ -54,6 +56,8 @@ public class ShipmentRepository {
         toAddress.setZip(record.get(TO_ADDR.ZIP));
         toAddress.setStreet(record.get(TO_ADDR.STREET));
         toAddress.setBuildingNumber(record.get(TO_ADDR.BUILDING_NUMBER));
+        toAddress.setLatitude(record.get(TO_ADDR.LATITUDE));
+        toAddress.setLongitude(record.get(TO_ADDR.LONGITUDE));
 
         Shipment shipment = new Shipment();
         shipment.setId(record.get(SHIPMENTS.ID));
@@ -64,6 +68,7 @@ public class ShipmentRepository {
         shipment.setShipper(shipper);
         shipment.setFromAddress(fromAddress);
         shipment.setToAddress(toAddress);
+        shipment.setParcels(parcelRepository.findByShipmentId(record.get(SHIPMENTS.ID)));
 
         return shipment;
     }

@@ -21,6 +21,14 @@ public class AddressRepository {
                 .fetchOptionalInto(Address.class);
     }
 
+    public void updateCoordinates(Long id, Double lat, Double lon){
+        dsl.update(ADDRESSES)
+                .set(ADDRESSES.LATITUDE, lat)
+                .set(ADDRESSES.LONGITUDE, lon)
+                .where(ADDRESSES.ID.eq(id))
+                .execute();
+    }
+
     public Address save(Address address) {
         return dsl.insertInto(ADDRESSES)
                 .set(ADDRESSES.CITY, address.getCity())

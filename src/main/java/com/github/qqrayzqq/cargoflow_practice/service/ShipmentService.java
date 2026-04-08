@@ -28,6 +28,7 @@ public class ShipmentService {
     private final AddressRepository addressRepository;
     private final ShipmentEventRepository shipmentEventRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final GeocodingService geocodingService;
 
     public Shipment getShipmentById(Long id){
         return shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
@@ -60,15 +61,9 @@ public class ShipmentService {
         }
         log.info("Creating shipment for user: {}", auth.getName());
         Address fromAddress = addressRepository.save(new Address(dto.getFromAddress().getCountry(), dto.getFromAddress().getZip(), dto.getFromAddress().getCity(), dto.getFromAddress().getStreet(), dto.getFromAddress().getBuildingNumber()));
-        applicationEventPublisher.publishEvent(new AddressEventDTO(
-                fromAddress.getId(), fromAddress.getCity(), fromAddress.getStreet(),
-                fromAddress.getZip(), fromAddress.getCountry(), fromAddress.getBuildingNumber()
-        ));
+        addressToStringAndUpdateCoordinates(fromAddress);
         Address toAddress = addressRepository.save(new Address(dto.getToAddress().getCountry(), dto.getToAddress().getZip(), dto.getToAddress().getCity(), dto.getToAddress().getStreet(), dto.getToAddress().getBuildingNumber()));
-        applicationEventPublisher.publishEvent(new AddressEventDTO(
-                toAddress.getId(), toAddress.getCity(), toAddress.getStreet(),
-                toAddress.getZip(), toAddress.getCountry(), toAddress.getBuildingNumber()
-        ));
+        addressToStringAndUpdateCoordinates(toAddress);
         User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new NotFoundException("User not found"));
         List<Parcel> parcels = dto.getParcels().stream()
                 .map(p -> new Parcel(null, p.getWeight(), p.getWidth(), p.getHeight(), p.getLength(), p.isFragile(), p.getDescription()))
@@ -80,6 +75,21 @@ public class ShipmentService {
         saved.getEvents().add(shipmentEvent);
         log.info("Shipment created: tracking={}", saved.getTrackingNumber());
         return saved;
+    }
+
+    private void addressToStringAndUpdateCoordinates(Address address) {
+        String addressStr = String.join(", ",
+                address.getCity(),
+                address.getStreet(),
+                address.getBuildingNumber()
+        );
+        double[] toCoords = geocodingService.geocode(addressStr);
+        if(toCoords != null) addressRepository.updateCoordinates(address.getId(), toCoords[0], toCoords[1]);
+        try { Thread.sleep(1100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        applicationEventPublisher.publishEvent(new AddressEventDTO(
+                address.getId(), address.getCity(), address.getStreet(),
+                address.getZip(), address.getCountry(), address.getBuildingNumber()
+        ));
     }
 
     public Shipment updateShipmentStatus(Long id, ShipmentStatus status){
