@@ -85,6 +85,16 @@ public class Addresses extends TableImpl<AddressesRecord> {
      */
     public final TableField<AddressesRecord, String> BUILDING_NUMBER = createField(DSL.name("building_number"), SQLDataType.VARCHAR(20).nullable(false), this, "");
 
+    /**
+     * The column <code>public.addresses.latitude</code>.
+     */
+    public final TableField<AddressesRecord, Double> LATITUDE = createField(DSL.name("latitude"), SQLDataType.DOUBLE, this, "");
+
+    /**
+     * The column <code>public.addresses.longitude</code>.
+     */
+    public final TableField<AddressesRecord, Double> LONGITUDE = createField(DSL.name("longitude"), SQLDataType.DOUBLE, this, "");
+
     private Addresses(Name alias, Table<AddressesRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }

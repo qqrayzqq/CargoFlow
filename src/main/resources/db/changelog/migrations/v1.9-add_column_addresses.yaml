@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: v.1.9-add-column-addresses
+      author: cargoflow
+      changes:
+        - addColumn:
+            tableName: addresses
+            columns:
+              - column:
+                  name: latitude
+                  type: DOUBLE PRECISION
+              - column:
+                  name: longitude
+                  type: DOUBLE PRECISION

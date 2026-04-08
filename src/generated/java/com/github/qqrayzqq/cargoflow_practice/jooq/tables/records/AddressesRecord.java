@@ -108,6 +108,36 @@ public class AddressesRecord extends UpdatableRecordImpl<AddressesRecord> {
         return (String) get(5);
     }
 
+    /**
+     * Setter for <code>public.addresses.latitude</code>.
+     */
+    public AddressesRecord setLatitude(Double value) {
+        set(6, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.addresses.latitude</code>.
+     */
+    public Double getLatitude() {
+        return (Double) get(6);
+    }
+
+    /**
+     * Setter for <code>public.addresses.longitude</code>.
+     */
+    public AddressesRecord setLongitude(Double value) {
+        set(7, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.addresses.longitude</code>.
+     */
+    public Double getLongitude() {
+        return (Double) get(7);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -131,7 +161,7 @@ public class AddressesRecord extends UpdatableRecordImpl<AddressesRecord> {
     /**
      * Create a detached, initialised AddressesRecord
      */
-    public AddressesRecord(Long id, String country, String zip, String city, String street, String buildingNumber) {
+    public AddressesRecord(Long id, String country, String zip, String city, String street, String buildingNumber, Double latitude, Double longitude) {
         super(Addresses.ADDRESSES);
 
         setId(id);
@@ -140,6 +170,8 @@ public class AddressesRecord extends UpdatableRecordImpl<AddressesRecord> {
         setCity(city);
         setStreet(street);
         setBuildingNumber(buildingNumber);
+        setLatitude(latitude);
+        setLongitude(longitude);
         resetChangedOnNotNull();
     }
 
@@ -156,6 +188,8 @@ public class AddressesRecord extends UpdatableRecordImpl<AddressesRecord> {
             setCity(value.getCity());
             setStreet(value.getStreet());
             setBuildingNumber(value.getBuildingNumber());
+            setLatitude(value.getLatitude());
+            setLongitude(value.getLongitude());
             resetChangedOnNotNull();
         }
     }

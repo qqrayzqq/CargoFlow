@@ -21,6 +21,8 @@ public class Addresses implements Serializable {
     private String city;
     private String street;
     private String buildingNumber;
+    private Double latitude;
+    private Double longitude;
 
     public Addresses() {}
 
@@ -31,6 +33,8 @@ public class Addresses implements Serializable {
         this.city = value.city;
         this.street = value.street;
         this.buildingNumber = value.buildingNumber;
+        this.latitude = value.latitude;
+        this.longitude = value.longitude;
     }
 
     public Addresses(
@@ -39,7 +43,9 @@ public class Addresses implements Serializable {
         String zip,
         String city,
         String street,
-        String buildingNumber
+        String buildingNumber,
+        Double latitude,
+        Double longitude
     ) {
         this.id = id;
         this.country = country;
@@ -47,6 +53,8 @@ public class Addresses implements Serializable {
         this.city = city;
         this.street = street;
         this.buildingNumber = buildingNumber;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /**
@@ -139,6 +147,36 @@ public class Addresses implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.addresses.latitude</code>.
+     */
+    public Double getLatitude() {
+        return this.latitude;
+    }
+
+    /**
+     * Setter for <code>public.addresses.latitude</code>.
+     */
+    public Addresses setLatitude(Double latitude) {
+        this.latitude = latitude;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.addresses.longitude</code>.
+     */
+    public Double getLongitude() {
+        return this.longitude;
+    }
+
+    /**
+     * Setter for <code>public.addresses.longitude</code>.
+     */
+    public Addresses setLongitude(Double longitude) {
+        this.longitude = longitude;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -184,6 +222,18 @@ public class Addresses implements Serializable {
         }
         else if (!this.buildingNumber.equals(other.buildingNumber))
             return false;
+        if (this.latitude == null) {
+            if (other.latitude != null)
+                return false;
+        }
+        else if (!this.latitude.equals(other.latitude))
+            return false;
+        if (this.longitude == null) {
+            if (other.longitude != null)
+                return false;
+        }
+        else if (!this.longitude.equals(other.longitude))
+            return false;
         return true;
     }
 
@@ -197,6 +247,8 @@ public class Addresses implements Serializable {
         result = prime * result + ((this.city == null) ? 0 : this.city.hashCode());
         result = prime * result + ((this.street == null) ? 0 : this.street.hashCode());
         result = prime * result + ((this.buildingNumber == null) ? 0 : this.buildingNumber.hashCode());
+        result = prime * result + ((this.latitude == null) ? 0 : this.latitude.hashCode());
+        result = prime * result + ((this.longitude == null) ? 0 : this.longitude.hashCode());
         return result;
     }
 
@@ -210,6 +262,8 @@ public class Addresses implements Serializable {
         sb.append(", ").append(city);
         sb.append(", ").append(street);
         sb.append(", ").append(buildingNumber);
+        sb.append(", ").append(latitude);
+        sb.append(", ").append(longitude);
 
         sb.append(")");
         return sb.toString();

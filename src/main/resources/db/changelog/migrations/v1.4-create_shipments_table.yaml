@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: v1.4-create-shipments-table
-      author: cargodflow
+      author: cargoflow
       changes:
         - createTable:
             tableName: shipments

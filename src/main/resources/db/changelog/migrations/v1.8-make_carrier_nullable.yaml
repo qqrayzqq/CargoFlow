@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: v1.8-make_carrier_nullable
-      author: qqrayzqq
+      author: cargoflow
       changes:
         - dropNotNullConstraint:
             tableName: shipments
