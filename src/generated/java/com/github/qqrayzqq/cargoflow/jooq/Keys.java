@@ -42,6 +42,7 @@ public class Keys {
     public static final UniqueKey<ShipmentEventsRecord> SHIPMENT_EVENTS_PKEY = Internal.createUniqueKey(ShipmentEvents.SHIPMENT_EVENTS, DSL.name("shipment_events_pkey"), new TableField[] { ShipmentEvents.SHIPMENT_EVENTS.ID }, true);
     public static final UniqueKey<ShipmentsRecord> SHIPMENTS_PKEY = Internal.createUniqueKey(Shipments.SHIPMENTS, DSL.name("shipments_pkey"), new TableField[] { Shipments.SHIPMENTS.ID }, true);
     public static final UniqueKey<ShipmentsRecord> SHIPMENTS_TRACKING_NUMBER_KEY = Internal.createUniqueKey(Shipments.SHIPMENTS, DSL.name("shipments_tracking_number_key"), new TableField[] { Shipments.SHIPMENTS.TRACKING_NUMBER }, true);
+    public static final UniqueKey<ShipmentsRecord> UQ_TRACKING_NUMBER_SHIPMENT = Internal.createUniqueKey(Shipments.SHIPMENTS, DSL.name("uq_tracking_number_shipment"), new TableField[] { Shipments.SHIPMENTS.TRACKING_NUMBER }, true);
     public static final UniqueKey<UsersRecord> USERS_EMAIL_KEY = Internal.createUniqueKey(Users.USERS, DSL.name("users_email_key"), new TableField[] { Users.USERS.EMAIL }, true);
     public static final UniqueKey<UsersRecord> USERS_PKEY = Internal.createUniqueKey(Users.USERS, DSL.name("users_pkey"), new TableField[] { Users.USERS.ID }, true);
     public static final UniqueKey<UsersRecord> USERS_USERNAME_KEY = Internal.createUniqueKey(Users.USERS, DSL.name("users_username_key"), new TableField[] { Users.USERS.USERNAME }, true);

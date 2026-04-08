@@ -4,6 +4,6 @@ databaseChangeLog:
       author: cargoflow
       changes:
         - addUniqueConstraint:
-            tableName: shipment
+            tableName: shipments
             columnNames: tracking_number
             constraintName: uq_tracking_number_shipment

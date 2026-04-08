@@ -183,7 +183,7 @@ public class Shipments extends TableImpl<ShipmentsRecord> {
 
     @Override
     public List<UniqueKey<ShipmentsRecord>> getUniqueKeys() {
-        return Arrays.asList(Keys.SHIPMENTS_TRACKING_NUMBER_KEY);
+        return Arrays.asList(Keys.SHIPMENTS_TRACKING_NUMBER_KEY, Keys.UQ_TRACKING_NUMBER_SHIPMENT);
     }
 
     @Override
