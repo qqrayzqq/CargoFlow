@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.github.qqrayzqq</groupId>
-    <artifactId>cargoflow_practice</artifactId>
+    <artifactId>cargoflow</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>cargoflow_practice</name>
-    <description>cargoflow_practice</description>
+    <name>cargoflow</name>
+    <description>cargoflow</description>
     <url/>
     <licenses>
         <license/>
