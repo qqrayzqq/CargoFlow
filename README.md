@@ -34,7 +34,7 @@ A logistics management API built as a portfolio project to demonstrate productio
 - **Event-driven indexing** — addresses indexed to ES after commit via `@TransactionalEventListener`
 - **Pagination** — `getAllShipments(page, size)` with jOOQ `LIMIT/OFFSET`
 - **Observability** — `/actuator/health` with component details (DB, ES, disk)
-- **Global error handling** — 404, 409, 401, 500 mapped to GraphQL errors
+- **Global error handling** — `NOT_FOUND`, `BAD_REQUEST`, `UNAUTHORIZED`, `INTERNAL_ERROR` mapped to GraphQL `errors[]` via `@GraphQlExceptionHandler`
 
 ---
 
