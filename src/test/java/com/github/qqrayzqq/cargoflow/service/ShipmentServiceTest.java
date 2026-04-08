@@ -2,6 +2,7 @@ package com.github.qqrayzqq.cargoflow.service;
 
 import com.github.qqrayzqq.cargoflow.domain.Carrier;
 import com.github.qqrayzqq.cargoflow.domain.Shipment;
+import com.github.qqrayzqq.cargoflow.domain.User;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.address.AddressDto;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateParcelDto;
@@ -117,12 +118,12 @@ class ShipmentServiceTest {
 
             Shipment fakeShipment = new Shipment();
             fakeShipment.setTrackingNumber("ABC123");
-            when(shipmentPersistenceService.save(any(), any(), any())).thenReturn(fakeShipment);
+            when(shipmentPersistenceService.save(any(), any(), any(), any())).thenReturn(fakeShipment);
 
-            Shipment result = shipmentService.createShipment(dto);
+            Shipment result = shipmentService.createShipment(dto, "testuser");
             assertEquals("ABC123", result.getTrackingNumber());
             verify(geocodingService, times(2)).geocode(anyString());
-            verify(shipmentPersistenceService).save(eq(dto), eq(fakeCoords), eq(fakeCoords));
+            verify(shipmentPersistenceService).save(eq("testuser"), eq(dto), eq(fakeCoords), eq(fakeCoords));
         }
 
         @Test
@@ -136,10 +137,36 @@ class ShipmentServiceTest {
 
             Shipment fakeShipment = new Shipment();
             fakeShipment.setTrackingNumber("XYZ999");
-            when(shipmentPersistenceService.save(any(), isNull(), isNull())).thenReturn(fakeShipment);
+            when(shipmentPersistenceService.save(any(), any(), isNull(), isNull())).thenReturn(fakeShipment);
 
-            Shipment result = shipmentService.createShipment(dto);
+            Shipment result = shipmentService.createShipment(dto, "testuser");
             assertEquals("XYZ999", result.getTrackingNumber());
+        }
+    }
+
+    @Nested
+    class testGetMyShipments{
+        @Test
+        void shouldReturnShipmentsForUser(){
+            User fakeUser = new User();
+            fakeUser.setId(1L);
+            fakeUser.setUsername("john");
+
+            Shipment fakeShipment = new Shipment();
+            fakeShipment.setId(10L);
+
+            when(userRepository.findByUsername("john")).thenReturn(Optional.of(fakeUser));
+            when(shipmentRepository.findByShipperId(1L)).thenReturn(List.of(fakeShipment));
+
+            List<Shipment> result = shipmentService.getMyShipments("john");
+
+            assertEquals(1, result.size());
+            assertEquals(10L, result.getFirst().getId());
+        }
+
+        @Test
+        void shouldThrowNotFoundExceptionWhenUserNotFound(){
+            assertThrows(NotFoundException.class, () -> shipmentService.getMyShipments("unknown"));
         }
     }
 

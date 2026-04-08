@@ -10,6 +10,8 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -33,8 +35,8 @@ public class ShipmentResolver {
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
-    public List<Shipment> getMyShipments() {
-        return shipmentService.getMyShipments();
+    public List<Shipment> getMyShipments(@AuthenticationPrincipal UserDetails userDetails) {
+        return shipmentService.getMyShipments(userDetails.getUsername());
     }
 
     @QueryMapping
@@ -45,8 +47,8 @@ public class ShipmentResolver {
 
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
-    public Shipment createShipment(@Argument @Valid CreateShipmentDto input) {
-        return shipmentService.createShipment(input);
+    public Shipment createShipment(@Argument @Valid CreateShipmentDto input, @AuthenticationPrincipal UserDetails userDetails) {
+        return shipmentService.createShipment(input, userDetails.getUsername());
     }
 
     @MutationMapping

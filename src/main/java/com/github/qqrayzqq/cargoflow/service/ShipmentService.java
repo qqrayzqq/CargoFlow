@@ -3,13 +3,11 @@ package com.github.qqrayzqq.cargoflow.service;
 import com.github.qqrayzqq.cargoflow.domain.*;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
-import com.github.qqrayzqq.cargoflow.exception.InvalidCredentialsException;
 import com.github.qqrayzqq.cargoflow.exception.InvalidTransitionException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,12 +30,7 @@ public class ShipmentService {
         return shipmentRepository.findByTrackingNumber(trackingNumber).orElseThrow(() -> new NotFoundException("Shipment not found"));
     }
 
-    public List<Shipment> getMyShipments(){
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if(auth == null || !auth.isAuthenticated()){
-            throw new InvalidCredentialsException();
-        }
-        String username = auth.getName();
+    public List<Shipment> getMyShipments(String username){
         User user = userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
         return shipmentRepository.findByShipperId(user.getId());
     }
@@ -46,7 +39,7 @@ public class ShipmentService {
         return shipmentRepository.findAll(page, size);
     }
 
-    public Shipment createShipment(CreateShipmentDto dto){
+    public Shipment createShipment(CreateShipmentDto dto, String username){
         String fromAddressStr = addressToString(new Address(
                 dto.getFromAddress().getCountry(),
                 dto.getFromAddress().getZip(),
@@ -65,7 +58,7 @@ public class ShipmentService {
 
         double[] fromCoords = geocodingService.geocode(fromAddressStr);
         double[] toCoords = geocodingService.geocode(toAddressStr);
-        return shipmentPersistenceService.save(dto, fromCoords, toCoords);
+        return shipmentPersistenceService.save(username, dto, fromCoords, toCoords);
     }
 
     private String addressToString(Address address) {

@@ -4,7 +4,6 @@ import com.github.qqrayzqq.cargoflow.domain.*;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
 import com.github.qqrayzqq.cargoflow.elasticsearch.dto.AddressEventDTO;
-import com.github.qqrayzqq.cargoflow.exception.InvalidCredentialsException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.AddressRepository;
 import com.github.qqrayzqq.cargoflow.repository.ShipmentEventRepository;
@@ -13,7 +12,6 @@ import com.github.qqrayzqq.cargoflow.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +30,9 @@ public class ShipmentPersistenceService {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
-    public Shipment save(CreateShipmentDto dto, double[] fromCoords, double[] toCoords){
+    public Shipment save(String username, CreateShipmentDto dto, double[] fromCoords, double[] toCoords){
         String trackingNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if(auth == null || !auth.isAuthenticated()){
-            throw new InvalidCredentialsException();
-        }
-        log.info("Creating shipment for user: {}", auth.getName());
+        log.info("Creating shipment for user: {}", username);
         Address fromAddress = addressRepository.save(new Address(dto.getFromAddress().getCountry(), dto.getFromAddress().getZip(), dto.getFromAddress().getCity(), dto.getFromAddress().getStreet(), dto.getFromAddress().getBuildingNumber()));
         Address toAddress = addressRepository.save(new Address(dto.getToAddress().getCountry(), dto.getToAddress().getZip(), dto.getToAddress().getCity(), dto.getToAddress().getStreet(), dto.getToAddress().getBuildingNumber()));
         if (fromCoords != null) addressRepository.updateCoordinates(fromAddress.getId(), fromCoords[0], fromCoords[1]);
@@ -59,7 +53,7 @@ public class ShipmentPersistenceService {
                 toAddress.getCountry(),
                 toAddress.getBuildingNumber()
         ));
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new NotFoundException("User not found"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
         List<Parcel> parcels = dto.getParcels().stream()
                 .map(p -> new Parcel(null, p.getWeight(), p.getWidth(), p.getHeight(), p.getLength(), p.isFragile(), p.getDescription()))
                 .toList();
