@@ -1,29 +1,21 @@
 package com.github.qqrayzqq.cargoflow.service;
 
-import com.github.qqrayzqq.cargoflow.domain.Address;
 import com.github.qqrayzqq.cargoflow.domain.Carrier;
 import com.github.qqrayzqq.cargoflow.domain.Shipment;
-import com.github.qqrayzqq.cargoflow.domain.User;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.address.AddressDto;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateParcelDto;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
-import com.github.qqrayzqq.cargoflow.exception.InvalidCredentialsException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,10 +28,8 @@ class ShipmentServiceTest {
     @Mock ShipmentRepository shipmentRepository;
     @Mock UserRepository userRepository;
     @Mock CarrierRepository carrierRepository;
-    @Mock AddressRepository addressRepository;
-    @Mock ShipmentEventRepository shipmentEventRepository;
-    @Mock ApplicationEventPublisher applicationEventPublisher;
     @Mock GeocodingService geocodingService;
+    @Mock ShipmentPersistenceService shipmentPersistenceService;
 
     ShipmentService shipmentService;
 
@@ -47,7 +37,7 @@ class ShipmentServiceTest {
     void setUp() {
         shipmentService = new ShipmentService(
                 shipmentRepository, userRepository, carrierRepository,
-                addressRepository, shipmentEventRepository, applicationEventPublisher, geocodingService
+                geocodingService, shipmentPersistenceService
         );
     }
 
@@ -95,11 +85,6 @@ class ShipmentServiceTest {
 
     @Nested
     class testCreateShipment{
-        @AfterEach
-        void clearSecurityContext() {
-            SecurityContextHolder.clearContext();
-        }
-
 
         private AddressDto makeAddress() {
             AddressDto a = new AddressDto();
@@ -126,54 +111,34 @@ class ShipmentServiceTest {
             dto.setToAddress(makeAddress());
             dto.setParcels(List.of(parcel));
 
-            var auth = new UsernamePasswordAuthenticationToken("testuser", null, List.of());
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
-            Address fakeAddress = new Address();
-            fakeAddress.setId(1L);
-            when(addressRepository.save(any())).thenReturn(fakeAddress);
-
-            User fakeUser = new User();
-            fakeUser.setId(1L);
-            fakeUser.setUsername("testuser");
-            when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(fakeUser));
+            double[] fakeCoords = {50.0, 14.0};
+            when(geocodingService.geocode(anyString())).thenReturn(fakeCoords);
 
             Shipment fakeShipment = new Shipment();
             fakeShipment.setTrackingNumber("ABC123");
-            fakeShipment.setEvents(new ArrayList<>());
-            when(shipmentRepository.save(any())).thenReturn(fakeShipment);
+            when(shipmentPersistenceService.save(any(), any(), any())).thenReturn(fakeShipment);
 
             Shipment result = shipmentService.createShipment(dto);
             assertEquals("ABC123", result.getTrackingNumber());
+            verify(geocodingService, times(2)).geocode(anyString());
+            verify(shipmentPersistenceService).save(eq(dto), eq(fakeCoords), eq(fakeCoords));
         }
 
         @Test
-        void shouldThrowInvalidCredentialsWhenNotAuthenticated() {
+        void shouldHandleNullCoordsFromGeocoder(){
             CreateShipmentDto dto = new CreateShipmentDto();
             dto.setFromAddress(makeAddress());
             dto.setToAddress(makeAddress());
             dto.setParcels(List.of());
 
-            assertThrows(InvalidCredentialsException.class, () -> shipmentService.createShipment(dto));
-        }
+            when(geocodingService.geocode(anyString())).thenReturn(null);
 
-        @Test
-        void shouldThrowNotFoundExceptionWhenUserNotFound() {
-            var auth = new UsernamePasswordAuthenticationToken("ghost", null, List.of());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            Shipment fakeShipment = new Shipment();
+            fakeShipment.setTrackingNumber("XYZ999");
+            when(shipmentPersistenceService.save(any(), isNull(), isNull())).thenReturn(fakeShipment);
 
-            Address fakeAddress = new Address();
-            fakeAddress.setId(2L);
-            when(addressRepository.save(any())).thenReturn(fakeAddress);
-
-            when(userRepository.findByUsername("ghost")).thenReturn(Optional.empty());
-
-            CreateShipmentDto dto = new CreateShipmentDto();
-            dto.setFromAddress(makeAddress());
-            dto.setToAddress(makeAddress());
-            dto.setParcels(List.of());
-
-            assertThrows(NotFoundException.class, () -> shipmentService.createShipment(dto));
+            Shipment result = shipmentService.createShipment(dto);
+            assertEquals("XYZ999", result.getTrackingNumber());
         }
     }
 
