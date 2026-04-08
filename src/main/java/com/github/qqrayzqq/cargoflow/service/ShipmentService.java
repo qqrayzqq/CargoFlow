@@ -4,6 +4,7 @@ import com.github.qqrayzqq.cargoflow.domain.*;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
 import com.github.qqrayzqq.cargoflow.exception.InvalidCredentialsException;
+import com.github.qqrayzqq.cargoflow.exception.InvalidTransitionException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -76,7 +77,10 @@ public class ShipmentService {
     }
 
     public Shipment updateShipmentStatus(Long id, ShipmentStatus status){
-        shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        if(!shipment.getStatus().canTransitionTo(status)){
+            throw new InvalidTransitionException("Cannot transition from " + shipment.getStatus() + " to " + status);
+        }
         log.info("Shipment {} status changed to {}", id, status);
         return shipmentRepository.updateStatus(id, status);
     }
@@ -89,7 +93,10 @@ public class ShipmentService {
     }
 
     public Boolean cancelShipment(Long id){
-        shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        if(!shipment.getStatus().canTransitionTo(ShipmentStatus.CANCELLED)){
+            throw new InvalidTransitionException("Cannot transition from " + shipment.getStatus() + " to CANCELLED");
+        }
         shipmentRepository.updateStatus(id, ShipmentStatus.CANCELLED);
         log.info("Shipment {} status changed to CANCELLED", id);
         return true;

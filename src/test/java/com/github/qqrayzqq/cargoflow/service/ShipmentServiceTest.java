@@ -6,6 +6,7 @@ import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.address.AddressDto;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateParcelDto;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
+import com.github.qqrayzqq.cargoflow.exception.InvalidTransitionException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
 import org.junit.jupiter.api.Nested;
@@ -171,6 +172,18 @@ class ShipmentServiceTest {
         void shouldThrowNotFoundExceptionWhenShipmentNotFound(){
             assertThrows(NotFoundException.class, () -> shipmentService.cancelShipment(1L));
         }
+
+        @Test
+        void shouldThrowInvalidTransitionExceptionWhenCancellingDelivered(){
+            Shipment fakeShipment = new Shipment();
+            fakeShipment.setId(1L);
+            fakeShipment.setStatus(ShipmentStatus.DELIVERED);
+
+            when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
+
+            assertThrows(InvalidTransitionException.class, () -> shipmentService.cancelShipment(1L));
+            verify(shipmentRepository, never()).updateStatus(any(), any());
+        }
     }
 
     @Nested
@@ -183,14 +196,26 @@ class ShipmentServiceTest {
 
             when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
 
-            shipmentService.updateShipmentStatus(1L, ShipmentStatus.IN_TRANSIT);
+            shipmentService.updateShipmentStatus(1L, ShipmentStatus.PICKED_UP);
 
-            verify(shipmentRepository).updateStatus(1L, ShipmentStatus.IN_TRANSIT);
+            verify(shipmentRepository).updateStatus(1L, ShipmentStatus.PICKED_UP);
         }
 
         @Test
         void shouldThrowNotFoundExceptionWhenShipmentNotFound(){
-            assertThrows(NotFoundException.class, () -> shipmentService.updateShipmentStatus(1L, ShipmentStatus.IN_TRANSIT));
+            assertThrows(NotFoundException.class, () -> shipmentService.updateShipmentStatus(1L, ShipmentStatus.PICKED_UP));
+        }
+
+        @Test
+        void shouldThrowInvalidTransitionExceptionWhenTransitionIsInvalid(){
+            Shipment fakeShipment = new Shipment();
+            fakeShipment.setId(1L);
+            fakeShipment.setStatus(ShipmentStatus.DELIVERED);
+
+            when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
+
+            assertThrows(InvalidTransitionException.class, () -> shipmentService.updateShipmentStatus(1L, ShipmentStatus.CREATED));
+            verify(shipmentRepository, never()).updateStatus(any(), any());
         }
     }
 

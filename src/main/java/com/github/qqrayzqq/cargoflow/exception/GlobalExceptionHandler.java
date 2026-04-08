@@ -49,6 +49,17 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @GraphQlExceptionHandler(InvalidTransitionException.class)
+    public GraphQLError handleInvalidTransitionException(InvalidTransitionException ex, DataFetchingEnvironment env){
+        log.warn("Change status failed: {}", ex.getMessage());
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(ex.getMessage())
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
+    }
+
     // Последний рубеж — ловит всё что не поймали выше.
     // Клиенту не показываем детали (могут содержать внутреннюю информацию).
     // log.error с третьим аргументом ex — печатает полный stacktrace в лог файл.
