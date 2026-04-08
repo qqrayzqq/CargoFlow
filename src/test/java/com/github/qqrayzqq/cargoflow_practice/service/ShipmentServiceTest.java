@@ -39,6 +39,7 @@ class ShipmentServiceTest {
     @Mock AddressRepository addressRepository;
     @Mock ShipmentEventRepository shipmentEventRepository;
     @Mock ApplicationEventPublisher applicationEventPublisher;
+    @Mock GeocodingService geocodingService;
 
     ShipmentService shipmentService;
 
@@ -46,7 +47,7 @@ class ShipmentServiceTest {
     void setUp() {
         shipmentService = new ShipmentService(
                 shipmentRepository, userRepository, carrierRepository,
-                addressRepository, shipmentEventRepository, applicationEventPublisher
+                addressRepository, shipmentEventRepository, applicationEventPublisher, geocodingService
         );
     }
 
