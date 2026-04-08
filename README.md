@@ -42,14 +42,14 @@ A logistics management API built as a portfolio project to demonstrate productio
 
 ```mermaid
 graph TD
-    Client -->|HTTP + JWT Bearer| GraphQL[GraphQL Layer<br/>@QueryMapping / @MutationMapping]
-    GraphQL -->|delegates| Service[Service Layer<br/>@Transactional, business logic]
+    Client -->|HTTP + JWT Bearer| GraphQL[GraphQL Layer<br/>QueryMapping / MutationMapping]
+    GraphQL -->|delegates| Service[Service Layer<br/>Transactional, business logic]
     Service -->|SQL via DSLContext| Repository[Repository Layer<br/>jOOQ, manual mapping]
-    Service -->|HTTP| Nominatim[Nominatim API<br/>OpenStreetMap geocoding]
+    Service -->|HTTP, rate-limited| Nominatim[Nominatim API<br/>OpenStreetMap geocoding]
     Repository --> PostgreSQL[(PostgreSQL)]
-    Service -->|ApplicationEvent| ESListener[AddressIndexListener<br/>@TransactionalEventListener]
+    Service -->|ApplicationEvent after commit| ESListener[AddressIndexListener<br/>TransactionalEventListener]
     ESListener --> Elasticsearch[(Elasticsearch 9)]
-    Client -->|no auth| Actuator[/actuator/health]
+    Client -->|no auth| Actuator[actuator/health]
 ```
 
 ---
@@ -112,6 +112,8 @@ Shipment price is computed from real-world data — not hardcoded rates:
 3. **Effective weight** — `max(actual weight, volumetric weight)` where volumetric = `W×H×L / 5000`
 4. **Fragile surcharge** — ×1.5 multiplier if any parcel is fragile
 5. **Rate** — `0.01 USD per kg·km` (result currency: USD)
+
+> This is a simplified **air freight pricing model** (IATA volumetric weight standard). Real courier services (DHL, FedEx) use zone-based flat rates — but the air freight model is a valid and explainable approach for demonstrating domain logic.
 
 ```graphql
 query {
