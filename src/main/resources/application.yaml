@@ -1,6 +1,6 @@
 spring:
   application:
-    name: cargoflow_practice
+    name: cargoflow
 
   profiles:
     active: local   # использует application-local.yaml (не коммитится в git)
@@ -42,7 +42,7 @@ server:
 logging:
   level:
     root: WARN
-    com.github.qqrayzqq.cargoflow_practice : DEBUG
+    com.github.qqrayzqq.cargoflow : DEBUG
     liquibase: INFO
   file:
     name: logs/cargoflow.log
