@@ -32,6 +32,9 @@ public class ShipmentPersistenceService {
     @Transactional
     public Shipment save(String username, CreateShipmentDto dto, double[] fromCoords, double[] toCoords){
         String trackingNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        while (shipmentRepository.findByTrackingNumber(trackingNumber).isPresent()){
+            trackingNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        }
         log.info("Creating shipment for user: {}", username);
         Address fromAddress = addressRepository.save(new Address(dto.getFromAddress().getCountry(), dto.getFromAddress().getZip(), dto.getFromAddress().getCity(), dto.getFromAddress().getStreet(), dto.getFromAddress().getBuildingNumber()));
         Address toAddress = addressRepository.save(new Address(dto.getToAddress().getCountry(), dto.getToAddress().getZip(), dto.getToAddress().getCity(), dto.getToAddress().getStreet(), dto.getToAddress().getBuildingNumber()));

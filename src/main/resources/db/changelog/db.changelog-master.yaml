@@ -23,3 +23,5 @@ databaseChangeLog:
       file: db/changelog/migrations/v1.8-make_carrier_nullable.yaml
   - include:
       file: db/changelog/migrations/v1.9-add_column_addresses.yaml
+  - include:
+      file: db/changelog/migrations/v1.10-add_unique_shipment.yaml

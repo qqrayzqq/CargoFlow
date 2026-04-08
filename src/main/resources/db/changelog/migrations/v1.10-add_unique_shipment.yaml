@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.10-add-unique-shipment
+      author: cargoflow
+      changes:
+        - addUniqueConstraint:
+            tableName: shipment
+            columnNames: tracking_number
+            constraintName: uq_tracking_number_shipment
