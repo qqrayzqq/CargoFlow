@@ -24,6 +24,10 @@ public class Address {
 
     private String buildingNumber;
 
+    private Double latitude;
+
+    private Double longitude;
+
     public Address(String country, String zip, String city, String street, String buildingNumber) {
         this.country = country;
         this.zip = zip;

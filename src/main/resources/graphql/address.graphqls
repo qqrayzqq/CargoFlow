@@ -5,6 +5,8 @@ type Address{
     city: String!
     street: String!
     buildingNumber: String!
+    latitude: Float
+    longitude: Float
 }
 
 extend type Query {
