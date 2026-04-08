@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CargoflowPracticeApplication {
+public class CargoflowApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CargoflowPracticeApplication.class, args);
+        SpringApplication.run(CargoflowApplication.class, args);
     }
 
 }
