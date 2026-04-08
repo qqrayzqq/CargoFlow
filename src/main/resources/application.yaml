@@ -46,3 +46,12 @@ logging:
     liquibase: INFO
   file:
     name: logs/cargoflow.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always

@@ -61,7 +61,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()       // регистрация и логин — всем
                 .requestMatchers("/api/shipments/track/**").permitAll() // отслеживание посылки — всем
                 .requestMatchers("/graphql").permitAll()
-                .requestMatchers("/graphiql/**").permitAll()            // GraphQL UI для тестирования — всем (только dev)
+                .requestMatchers("/graphiql/**").permitAll()// GraphQL UI для тестирования — всем (только dev)
+                .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated());                    // всё остальное — только с токеном
 
         // Отключаем HTTP сессии — JWT сам несёт всю информацию о пользователе.
