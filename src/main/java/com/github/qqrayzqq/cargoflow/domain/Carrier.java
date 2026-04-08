@@ -1,0 +1,27 @@
+package com.github.qqrayzqq.cargoflow.domain;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Carrier {
+
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    private String name;
+
+    private String contactPhone;
+
+    private boolean isActive;
+
+    public Carrier(String name, String contactPhone) {
+        this.name = name;
+        this.contactPhone = contactPhone;
+    }
+}

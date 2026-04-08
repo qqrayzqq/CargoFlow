@@ -266,7 +266,7 @@
                                     <fluentSetters>true</fluentSetters>
                                 </generate>
                                 <target>
-                                    <packageName>com.github.qqrayzqq.cargoflow_practice.jooq</packageName>
+                                    <packageName>com.github.qqrayzqq.cargoflow.jooq</packageName>
                                     <directory>src/generated/java</directory>
                                 </target>
                             </generator>
