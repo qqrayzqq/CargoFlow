@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -65,11 +66,13 @@ public class UserService {
     }
 
     public Boolean deactivateUser(Long id) {
-        if (userRepository.findById(id).isEmpty()) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
             throw new NotFoundException("User not found");
         }
-        userRepository.deactivate(id);
-        log.info("User {} username was deactivated", userRepository.findById(id).get().getUsername());
+        User user = optionalUser.get();
+        userRepository.deactivate(user.getId());
+        log.info("User {} username was deactivated", user.getUsername());
         return true;
     }
 
