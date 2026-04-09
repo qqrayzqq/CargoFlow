@@ -30,4 +30,10 @@ public class ShipmentEventRepository {
                 .returning()
                 .fetchOneInto(ShipmentEvent.class);
     }
+
+    public List<ShipmentEvent> findAllByShipmentId(List<Long> shipmentsId){
+        return dsl.selectFrom(SHIPMENT_EVENTS)
+                .where(SHIPMENT_EVENTS.SHIPMENT_ID.in(shipmentsId))
+                .fetchInto(ShipmentEvent.class);
+    }
 }

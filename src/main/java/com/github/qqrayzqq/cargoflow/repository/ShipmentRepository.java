@@ -8,7 +8,9 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.github.qqrayzqq.cargoflow.jooq.Tables.*;
 
@@ -69,8 +71,6 @@ public class ShipmentRepository {
         shipment.setShipper(shipper);
         shipment.setFromAddress(fromAddress);
         shipment.setToAddress(toAddress);
-        shipment.setParcels(parcelRepository.findByShipmentId(record.get(SHIPMENTS.ID)));
-        shipment.setEvents(shipmentEventRepository.findByShipmentId(record.get(SHIPMENTS.ID)));
 
         return shipment;
     }
@@ -86,33 +86,79 @@ public class ShipmentRepository {
                 .join(TO_ADDR).on(SHIPMENTS.TO_ADDRESS_ID.eq(TO_ADDR.ID));
     }
 
+    private void enrichWithParcels(List<Shipment> shipments){
+        List<Long> shipmentsId = shipments.stream().map(Shipment::getId).toList();
+        List<Parcel> allParcels = parcelRepository.findAllByShipmentId(shipmentsId);
+
+        Map<Long, List<Parcel>> byShipmentId = allParcels.stream()
+                .collect(Collectors.groupingBy(Parcel::getShipmentId));
+
+        for(Shipment s : shipments){
+            s.setParcels(byShipmentId.getOrDefault(s.getId(), List.of()));
+        }
+    }
+
+    private void enrichWithEvents(List<Shipment> shipments){
+        List<Long> shipmentsId = shipments.stream().map(Shipment::getId).toList();
+        List<ShipmentEvent> allEvents = shipmentEventRepository.findAllByShipmentId(shipmentsId);
+
+        Map<Long, List<ShipmentEvent>> byShipmentId = allEvents.stream()
+                .collect(Collectors.groupingBy(ShipmentEvent::getShipmentId));
+
+        for(Shipment s : shipments){
+            s.setEvents(byShipmentId.getOrDefault(s.getId(), List.of()));
+        }
+    }
+
     public Optional<Shipment> findById(Long id) {
-        return Optional.ofNullable(
+        Optional<Shipment> shipment =  Optional.ofNullable(
                 baseSelect()
                         .where(SHIPMENTS.ID.eq(id))
                         .fetchOne(this::mapRecord)
         );
+
+        shipment.ifPresent(s -> {
+            enrichWithParcels(List.of(s));
+            enrichWithEvents(List.of(s));
+        });
+
+        return shipment;
     }
 
     public Optional<Shipment> findByTrackingNumber(String trackingNumber) {
-        return Optional.ofNullable(
+        Optional<Shipment> shipment = Optional.ofNullable(
                 baseSelect()
                         .where(SHIPMENTS.TRACKING_NUMBER.eq(trackingNumber))
                         .fetchOne(this::mapRecord)
         );
+
+        shipment.ifPresent(s -> {
+            enrichWithParcels(List.of(s));
+            enrichWithEvents(List.of(s));
+        });
+
+        return shipment;
     }
 
     public List<Shipment> findByShipperId(Long shipperId) {
-        return baseSelect()
+        List<Shipment> shipments = baseSelect()
                 .where(SHIPMENTS.SHIPPER_ID.eq(shipperId))
                 .fetch(this::mapRecord);
+
+        enrichWithParcels(shipments);
+        enrichWithEvents(shipments);
+        return shipments;
     }
 
     public List<Shipment> findAll(int page, int size) {
-        return baseSelect()
+        List<Shipment> shipments =  baseSelect()
                 .limit(size)
                 .offset((long) page * size)
                 .fetch(this::mapRecord);
+
+        enrichWithParcels(shipments);
+        enrichWithEvents(shipments);
+        return shipments;
     }
 
     public Shipment save(Shipment shipment) {

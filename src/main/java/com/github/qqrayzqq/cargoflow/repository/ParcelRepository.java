@@ -48,4 +48,10 @@ public class ParcelRepository {
 
         return insert.returning().fetchInto(Parcel.class);
     }
+
+    public List<Parcel> findAllByShipmentId(List<Long> shipmentId){
+        return dsl.selectFrom(PARCELS)
+                .where(PARCELS.SHIPMENT_ID.in(shipmentId))
+                .fetchInto(Parcel.class);
+    }
 }
