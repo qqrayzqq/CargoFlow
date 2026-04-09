@@ -18,6 +18,7 @@ public class ShipmentRepository {
 
     private final DSLContext dsl;
     private final ParcelRepository parcelRepository;
+    private final ShipmentEventRepository shipmentEventRepository;
 
     private Shipment mapRecord(org.jooq.Record record) {
         var FROM_ADDR = ADDRESSES.as("from_addr");
@@ -69,6 +70,7 @@ public class ShipmentRepository {
         shipment.setFromAddress(fromAddress);
         shipment.setToAddress(toAddress);
         shipment.setParcels(parcelRepository.findByShipmentId(record.get(SHIPMENTS.ID)));
+        shipment.setEvents(shipmentEventRepository.findByShipmentId(record.get(SHIPMENTS.ID)));
 
         return shipment;
     }

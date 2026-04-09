@@ -58,7 +58,7 @@ public class UserService {
             }
             user.setEmail(dto.getEmail());
         }
-        userRepository.save(user);
+        userRepository.update(user);
 
         log.info("User {} updated profile", user.getUsername());
         return true;

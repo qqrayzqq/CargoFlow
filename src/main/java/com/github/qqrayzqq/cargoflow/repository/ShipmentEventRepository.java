@@ -14,6 +14,12 @@ public class ShipmentEventRepository {
 
     private final DSLContext dsl;
 
+    public List<ShipmentEvent> findByShipmentId(Long shipmentId){
+        return dsl.selectFrom(SHIPMENT_EVENTS)
+                .where(SHIPMENT_EVENTS.SHIPMENT_ID.eq(shipmentId))
+                .fetchInto(ShipmentEvent.class);
+    }
+
     public ShipmentEvent save(ShipmentEvent event) {
         return dsl.insertInto(SHIPMENT_EVENTS)
                 .set(SHIPMENT_EVENTS.SHIPMENT_ID, event.getShipmentId())
