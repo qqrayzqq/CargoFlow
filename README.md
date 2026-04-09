@@ -17,7 +17,7 @@ A logistics management API built as a portfolio project to demonstrate productio
 | Security | Spring Security + JWT (stateless) |
 | Infrastructure | Docker Compose (auto-start) |
 | Observability | Spring Boot Actuator (`/actuator/health`, metrics) |
-| Testing | JUnit 5, Mockito, Testcontainers |
+| Testing | JUnit 5, Mockito, Spring Boot Test |
 | CI/CD | GitHub Actions |
 
 > **Why jOOQ instead of JPA?** jOOQ gives full control over SQL — no N+1 problems, no magic, explicit queries. Every JOIN is intentional.
@@ -224,7 +224,7 @@ Unit tests (Mockito)
   ShipmentServiceTest   — business logic in full isolation
   ShipmentResolverTest  — resolver delegation to service
 
-Integration tests (Testcontainers + real PostgreSQL)
+Integration tests (@SpringBootTest + real PostgreSQL via Docker Compose)
   UserRepositoryTest    — jOOQ queries against real DB schema
 ```
 
@@ -238,7 +238,7 @@ CI runs on every push to `master`/`develop` and on pull requests.
 
 ## Database Schema
 
-Managed by Liquibase (9 migrations). Core tables:
+Managed by Liquibase (10 migrations). Core tables:
 
 ```
 users ──────────────► shipments ──► parcels
