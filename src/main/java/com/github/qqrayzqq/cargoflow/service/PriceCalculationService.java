@@ -2,8 +2,7 @@ package com.github.qqrayzqq.cargoflow.service;
 
 import com.github.qqrayzqq.cargoflow.domain.Parcel;
 import com.github.qqrayzqq.cargoflow.domain.Shipment;
-import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
-import com.github.qqrayzqq.cargoflow.repository.ShipmentRepository;
+import com.github.qqrayzqq.cargoflow.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,17 +20,16 @@ public class PriceCalculationService {
     private static final BigDecimal FRAGILE_MULTIPLIER = new BigDecimal("1.5");
     private static final double VOLUMETRIC_DIVISOR = 5000.0; // см³ → кг (стандарт авиа)
 
-    private final ShipmentRepository shipmentRepository;
-
-    public BigDecimal calculatePrice(Long shipmentId) {
+    public BigDecimal calculatePrice(Shipment shipment) {
         // 1. Получить shipment с адресами и посылками
         // 2. Проверить что у обоих адресов есть координаты
         // 3. Вызвать haversine() для расстояния
         // 4. Вызвать effectiveWeight() для каждой посылки, просуммировать
         // 5. Применить FRAGILE_MULTIPLIER если хотя бы одна посылка fragile
         // 6. price = totalWeight * distanceKm * RATE_PER_KG_KM
-        Shipment shipment = shipmentRepository.findById(shipmentId).orElseThrow(() -> new NotFoundException("Shipment not found"));
-        if(shipment.getFromAddress().getLatitude() == null || shipment.getToAddress().getLatitude() == null) return BigDecimal.ZERO;
+        if(shipment.getFromAddress().getLatitude() == null || shipment.getToAddress().getLatitude() == null) {
+            throw new BadRequestException("Coordinates not found for this address");
+        }
         double distance = haversine(shipment.getFromAddress().getLatitude(), shipment.getFromAddress().getLongitude(), shipment.getToAddress().getLatitude(), shipment.getToAddress().getLongitude());
         BigDecimal weight = BigDecimal.ZERO;
         boolean fragile = false;
