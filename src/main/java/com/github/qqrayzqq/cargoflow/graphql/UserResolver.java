@@ -40,7 +40,7 @@ public class UserResolver {
 
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
-    public Boolean updateUser(@AuthenticationPrincipal UserDetails userDetails, @Argument @Valid UpdateUserDto input){
+    public String updateUser(@AuthenticationPrincipal UserDetails userDetails, @Argument @Valid UpdateUserDto input){
         return userService.updateUser(userDetails, input);
     }
 

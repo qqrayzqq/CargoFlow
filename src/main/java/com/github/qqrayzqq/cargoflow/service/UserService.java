@@ -5,6 +5,8 @@ import com.github.qqrayzqq.cargoflow.dto.user.UpdateUserDto;
 import com.github.qqrayzqq.cargoflow.exception.AlreadyExistsException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.UserRepository;
+import com.github.qqrayzqq.cargoflow.security.JwtService;
+import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public User getUserById(Long id){
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
@@ -34,7 +37,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Boolean updateUser(UserDetails userDetails, UpdateUserDto dto){
+    public String updateUser(UserDetails userDetails, UpdateUserDto dto){
         User user = getCurrentUser(userDetails);
         if(dto.getFullName() != null){
             user.setFullName(dto.getFullName());
@@ -57,7 +60,7 @@ public class UserService {
         userRepository.update(user);
 
         log.info("User {} updated profile", user.getUsername());
-        return true;
+        return jwtService.generateToken(new UserDetailsPrincipal(user));
     }
 
     public Boolean deactivateUser(Long id) {

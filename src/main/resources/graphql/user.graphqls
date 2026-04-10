@@ -41,6 +41,6 @@ extend type Query{
 extend type Mutation{
     register(input: RegisterInput!): String
     login(input: LoginInput!): String
-    updateUser(input: UpdateUserInput!): Boolean
+    updateUser(input: UpdateUserInput!): String
     deactivateUser(id : ID!): Boolean
 }
