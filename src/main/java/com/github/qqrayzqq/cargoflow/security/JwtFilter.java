@@ -1,5 +1,6 @@
 package com.github.qqrayzqq.cargoflow.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +45,14 @@ public class JwtFilter extends OncePerRequestFilter {
         var token = header.substring(7);
 
         // Достаём username из payload токена (поле "sub")
-        var username = jwtService.extractUsername(token);
+        String username;
+        try {
+            username = jwtService.extractUsername(token);
+        } catch (ExpiredJwtException e) {
+            // токен истёк — просто идём дальше без аутентификации
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // Если аутентификация уже установлена в этом запросе — не трогаем, передаём дальше.
         // getAuthentication() возвращает null если никто ещё не аутентифицировался.

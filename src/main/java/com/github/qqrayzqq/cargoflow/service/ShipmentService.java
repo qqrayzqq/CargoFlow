@@ -9,6 +9,7 @@ import com.github.qqrayzqq.cargoflow.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -63,12 +64,14 @@ public class ShipmentService {
 
     private String addressToString(Address address) {
         return String.join(", ",
+                address.getStreet() + " " + address.getBuildingNumber(),
                 address.getCity(),
-                address.getStreet(),
-                address.getBuildingNumber()
+                address.getZip(),
+                address.getCountry()
         );
     }
 
+    @Transactional
     public Shipment updateShipmentStatus(Long id, ShipmentStatus status){
         Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
         if(!shipment.getStatus().canTransitionTo(status)){
@@ -78,6 +81,7 @@ public class ShipmentService {
         return shipmentRepository.updateStatus(id, status);
     }
 
+    @Transactional
     public Shipment assignCarrier(Long id, Long carrierId) {
         shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
         carrierRepository.findById(carrierId).orElseThrow(() -> new NotFoundException("Carrier not found"));
@@ -85,6 +89,7 @@ public class ShipmentService {
         return shipmentRepository.assignCarrier(id, carrierId);
     }
 
+    @Transactional
     public Boolean cancelShipment(Long id){
         Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
         if(!shipment.getStatus().canTransitionTo(ShipmentStatus.CANCELLED)){

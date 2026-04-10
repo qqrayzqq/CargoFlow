@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class ShipmentRepository {
                 .collect(Collectors.groupingBy(Parcel::getShipmentId));
 
         for(Shipment s : shipments){
-            s.setParcels(byShipmentId.getOrDefault(s.getId(), List.of()));
+            s.setParcels(new ArrayList<>(byShipmentId.getOrDefault(s.getId(), List.of())));
         }
     }
 
@@ -106,7 +107,7 @@ public class ShipmentRepository {
                 .collect(Collectors.groupingBy(ShipmentEvent::getShipmentId));
 
         for(Shipment s : shipments){
-            s.setEvents(byShipmentId.getOrDefault(s.getId(), List.of()));
+            s.setEvents(new ArrayList<>(byShipmentId.getOrDefault(s.getId(), List.of())));
         }
     }
 

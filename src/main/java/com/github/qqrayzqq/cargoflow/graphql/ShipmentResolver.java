@@ -22,7 +22,7 @@ public class ShipmentResolver {
     private final ShipmentService shipmentService;
 
     @QueryMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("isAuthenticated()")
     public Shipment getShipmentById(@Argument Long id) {
         return shipmentService.getShipmentById(id);
     }
