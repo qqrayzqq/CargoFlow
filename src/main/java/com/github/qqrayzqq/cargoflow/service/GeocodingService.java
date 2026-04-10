@@ -1,5 +1,6 @@
 package com.github.qqrayzqq.cargoflow.service;
 
+import com.github.qqrayzqq.cargoflow.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -41,14 +42,16 @@ public class GeocodingService {
                     .body(new ParameterizedTypeReference<>() {});
 
             log.debug("Geocoding results: {}", results);
-            if (results == null || results.isEmpty()) return null;
+            if (results == null || results.isEmpty()){
+                throw new BadRequestException("Address not found: " + address);
+            }
 
             double lat = Double.parseDouble((String) results.getFirst().get("lat"));
             double lon = Double.parseDouble((String) results.getFirst().get("lon"));
             return new double[]{lat, lon};
         } catch (RestClientException e) {
             log.warn("Geocoding failed for address '{}': {}", address, e.getMessage());
-            return null;
+            throw new BadRequestException("Geocoding service unavailable, try again later");
         }
     }
 }

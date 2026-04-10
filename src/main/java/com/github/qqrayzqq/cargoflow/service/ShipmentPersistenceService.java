@@ -36,8 +36,8 @@ public class ShipmentPersistenceService {
             trackingNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
         }
         log.info("Creating shipment for user: {}", username);
-        Address fromAddress = addressRepository.save(new Address(dto.getFromAddress().getCountry(), dto.getFromAddress().getZip(), dto.getFromAddress().getCity(), dto.getFromAddress().getStreet(), dto.getFromAddress().getBuildingNumber()));
-        Address toAddress = addressRepository.save(new Address(dto.getToAddress().getCountry(), dto.getToAddress().getZip(), dto.getToAddress().getCity(), dto.getToAddress().getStreet(), dto.getToAddress().getBuildingNumber()));
+        Address fromAddress = addressRepository.findOrCreate(new Address(dto.getFromAddress().getCountry(), dto.getFromAddress().getZip(), dto.getFromAddress().getCity(), dto.getFromAddress().getStreet(), dto.getFromAddress().getBuildingNumber()));
+        Address toAddress = addressRepository.findOrCreate(new Address(dto.getToAddress().getCountry(), dto.getToAddress().getZip(), dto.getToAddress().getCity(), dto.getToAddress().getStreet(), dto.getToAddress().getBuildingNumber()));
         if (fromCoords != null) addressRepository.updateCoordinates(fromAddress.getId(), fromCoords[0], fromCoords[1]);
         if (toCoords != null) addressRepository.updateCoordinates(toAddress.getId(), toCoords[0], toCoords[1]);
         applicationEventPublisher.publishEvent(new AddressEventDTO(

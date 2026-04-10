@@ -39,4 +39,21 @@ public class AddressRepository {
                 .returning()
                 .fetchOneInto(Address.class);
     }
+
+    public Optional<Address> findByFields(String country, String zip, String city, String street, String buildingNumber) {
+        return dsl.selectFrom(ADDRESSES)
+                .where(ADDRESSES.CITY.eq(city))
+                .and(ADDRESSES.ZIP.eq(zip))
+                .and(ADDRESSES.COUNTRY.eq(country))
+                .and(ADDRESSES.STREET.eq(street))
+                .and(ADDRESSES.BUILDING_NUMBER.eq(buildingNumber))
+                .fetchOptionalInto(Address.class);
+    }
+
+    public Address findOrCreate(Address address) {
+        return findByFields(
+                address.getCountry(), address.getZip(), address.getCity(),
+                address.getStreet(), address.getBuildingNumber()
+        ).orElseGet(() -> save(address));
+    }
 }
