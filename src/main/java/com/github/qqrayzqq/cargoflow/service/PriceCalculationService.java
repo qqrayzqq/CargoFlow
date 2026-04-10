@@ -5,6 +5,7 @@ import com.github.qqrayzqq.cargoflow.domain.Shipment;
 import com.github.qqrayzqq.cargoflow.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,9 +17,11 @@ import java.math.RoundingMode;
 public class PriceCalculationService {
 
     private static final double EARTH_RADIUS_KM = 6371.0;
-    private static final BigDecimal RATE_PER_KG_KM = new BigDecimal("0.01");  // цена за кг*км
     private static final BigDecimal FRAGILE_MULTIPLIER = new BigDecimal("1.5");
     private static final double VOLUMETRIC_DIVISOR = 5000.0; // см³ → кг (стандарт авиа)
+
+    @Value("${cargoflow.rate-per-kg}")
+    private BigDecimal ratePerKg;
 
     public BigDecimal calculatePrice(Shipment shipment) {
         // 1. Получить shipment с адресами и посылками
@@ -40,7 +43,7 @@ public class PriceCalculationService {
             }
         }
         log.debug("distance={}, totalWeight={}", distance, weight);
-        BigDecimal price = weight.multiply(BigDecimal.valueOf(distance)).multiply(RATE_PER_KG_KM);
+        BigDecimal price = weight.multiply(BigDecimal.valueOf(distance)).multiply(ratePerKg);
         if(fragile) price = price.multiply(FRAGILE_MULTIPLIER);
         return price;
     }

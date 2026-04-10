@@ -41,34 +41,25 @@ public class ShipmentService {
     }
 
     public Shipment createShipment(CreateShipmentDto dto, String username){
-        String fromAddressStr = addressToString(new Address(
+        String fromAddressStr = new Address(
                 dto.getFromAddress().getCountry(),
                 dto.getFromAddress().getZip(),
                 dto.getFromAddress().getCity(),
                 dto.getFromAddress().getStreet(),
                 dto.getFromAddress().getBuildingNumber()
-        ));
+        ).toDisplayString();
 
-        String toAddressStr = addressToString(new Address(
+        String toAddressStr = new Address(
                 dto.getToAddress().getCountry(),
                 dto.getToAddress().getZip(),
                 dto.getToAddress().getCity(),
                 dto.getToAddress().getStreet(),
                 dto.getToAddress().getBuildingNumber()
-        ));
+        ).toDisplayString();
 
         double[] fromCoords = geocodingService.geocode(fromAddressStr);
         double[] toCoords = geocodingService.geocode(toAddressStr);
         return shipmentPersistenceService.save(username, dto, fromCoords, toCoords);
-    }
-
-    private String addressToString(Address address) {
-        return String.join(", ",
-                address.getStreet() + " " + address.getBuildingNumber(),
-                address.getCity(),
-                address.getZip(),
-                address.getCountry()
-        );
     }
 
     @Transactional

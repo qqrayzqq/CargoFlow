@@ -44,4 +44,8 @@ public class Address {
         this.street = street;
          this.buildingNumber = buildingNumber;
     }
+
+    public String toDisplayString() {
+        return String.join(", ", street + " " + buildingNumber, city, zip, country);
+    }
 }
