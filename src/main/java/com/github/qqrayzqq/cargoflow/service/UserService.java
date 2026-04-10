@@ -3,12 +3,11 @@ package com.github.qqrayzqq.cargoflow.service;
 import com.github.qqrayzqq.cargoflow.domain.User;
 import com.github.qqrayzqq.cargoflow.dto.user.UpdateUserDto;
 import com.github.qqrayzqq.cargoflow.exception.AlreadyExistsException;
-import com.github.qqrayzqq.cargoflow.exception.InvalidCredentialsException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +25,8 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    public User getCurrentUser() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new InvalidCredentialsException();
-        }
-        return userRepository.findByUsername(auth.getName())
+    public User getCurrentUser(UserDetails userDetails) {
+        return userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
@@ -39,8 +34,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Boolean updateUser(UpdateUserDto dto){
-        User user = getCurrentUser();
+    public Boolean updateUser(UserDetails userDetails, UpdateUserDto dto){
+        User user = getCurrentUser(userDetails);
         if(dto.getFullName() != null){
             user.setFullName(dto.getFullName());
         }

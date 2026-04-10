@@ -9,6 +9,8 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -26,8 +28,8 @@ public class UserResolver {
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
-    public User getCurrentUser(){
-        return userService.getCurrentUser();
+    public User getCurrentUser(@AuthenticationPrincipal UserDetails userDetails){
+        return userService.getCurrentUser(userDetails);
     }
 
     @QueryMapping
@@ -38,8 +40,8 @@ public class UserResolver {
 
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
-    public Boolean updateUser(@Argument @Valid UpdateUserDto input){
-        return userService.updateUser(input);
+    public Boolean updateUser(@AuthenticationPrincipal UserDetails userDetails, @Argument @Valid UpdateUserDto input){
+        return userService.updateUser(userDetails, input);
     }
 
     @MutationMapping

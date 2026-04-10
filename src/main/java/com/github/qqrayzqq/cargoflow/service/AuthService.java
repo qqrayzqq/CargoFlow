@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -35,6 +36,7 @@ public class AuthService {
         return jwtService.generateToken(new UserDetailsPrincipal(user));
     }
 
+    @Transactional
     public String register(RegisterDto dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new AlreadyExistsException("Username is already taken");
