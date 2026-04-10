@@ -2,6 +2,7 @@ package com.github.qqrayzqq.cargoflow.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -49,6 +50,7 @@ public class SecurityConfig {
     // Главный бин — описывает все правила безопасности для HTTP запросов.
     // JwtFilter инжектим через параметр метода, а не через поле — чтобы избежать circular dependency.
     @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
 
         // Отключаем CSRF защиту — она нужна только для сессий и куки.
@@ -61,8 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()       // регистрация и логин — всем
                 .requestMatchers("/api/shipments/track/**").permitAll() // отслеживание посылки — всем
                 .requestMatchers("/graphql").permitAll()
-                .requestMatchers("/graphiql/**").permitAll()// GraphQL UI для тестирования — всем (только dev)
-                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
                 .anyRequest().authenticated());                    // всё остальное — только с токеном
 
         // Отключаем HTTP сессии — JWT сам несёт всю информацию о пользователе.

@@ -6,7 +6,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -55,19 +54,6 @@ public class JwtService {
     // Достаёт username из токена (поле "sub" в payload)
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
-    }
-
-    // Достаёт список ролей из токена и конвертирует в объекты GrantedAuthority для Spring Security
-    @SuppressWarnings("unchecked") // Java не может проверить тип внутри List во время компиляции — это нормально
-    public List<GrantedAuthority> extractRoles(String token) {
-        Claims claims = extractAllClaims(token); // достаём весь payload
-        List<String> roles = claims.get("roles", List.class); // берём поле "roles" как список строк
-
-        if (roles == null) return List.of(); // если ролей нет — возвращаем пустой список
-
-        return roles.stream()
-                .map(SimpleGrantedAuthority::new) // каждую строку оборачиваем в объект Spring Security
-                .collect(Collectors.toList());
     }
 
     // Проверяет что токен валиден: принадлежит этому пользователю И ещё не истёк
