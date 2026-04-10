@@ -55,3 +55,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+cargoflow:
+  geocoding:
+    base-url: https://nominatim.openstreetmap.org
