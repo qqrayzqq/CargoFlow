@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Slf4j
@@ -22,6 +23,7 @@ public class ShipmentService {
     private final CarrierRepository carrierRepository;
     private final GeocodingService geocodingService;
     private final ShipmentPersistenceService shipmentPersistenceService;
+    private final ShipmentEventRepository shipmentEventRepository;
 
     public Shipment getShipmentById(Long id){
         return shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
@@ -68,6 +70,7 @@ public class ShipmentService {
         if(!shipment.getStatus().canTransitionTo(status)){
             throw new InvalidTransitionException("Cannot transition from " + shipment.getStatus() + " to " + status);
         }
+        shipmentEventRepository.save(new ShipmentEvent(id, status, null, null, OffsetDateTime.now()));
         log.info("Shipment {} status changed to {}", id, status);
         return shipmentRepository.updateStatus(id, status);
     }
@@ -87,6 +90,7 @@ public class ShipmentService {
             throw new InvalidTransitionException("Cannot transition from " + shipment.getStatus() + " to CANCELLED");
         }
         shipmentRepository.updateStatus(id, ShipmentStatus.CANCELLED);
+        shipmentEventRepository.save(new ShipmentEvent(id, ShipmentStatus.CANCELLED, null, null, OffsetDateTime.now()));
         log.info("Shipment {} status changed to CANCELLED", id);
         return true;
     }
