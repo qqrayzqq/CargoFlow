@@ -32,6 +32,7 @@ class ShipmentServiceTest {
     @Mock CarrierRepository carrierRepository;
     @Mock GeocodingService geocodingService;
     @Mock ShipmentPersistenceService shipmentPersistenceService;
+    @Mock ShipmentEventRepository shipmentEventRepository;
 
     ShipmentService shipmentService;
 
@@ -39,7 +40,7 @@ class ShipmentServiceTest {
     void setUp() {
         shipmentService = new ShipmentService(
                 shipmentRepository, userRepository, carrierRepository,
-                geocodingService, shipmentPersistenceService
+                geocodingService, shipmentPersistenceService, shipmentEventRepository
         );
     }
 
