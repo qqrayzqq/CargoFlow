@@ -2,6 +2,8 @@
 
 A logistics management API built as a portfolio project to demonstrate production-ready backend development with Java and Spring Boot. Covers the full backend stack: security, domain logic, search, observability, and infrastructure.
 
+**Frontend:** [cargoflow-frontend](https://github.com/qqrayzqq/cargoflow-frontend)
+
 ---
 
 ## Tech Stack
