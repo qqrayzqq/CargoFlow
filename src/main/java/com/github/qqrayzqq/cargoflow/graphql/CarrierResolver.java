@@ -46,4 +46,10 @@ public class CarrierResolver {
     public Boolean deactivateCarrier(@Argument Long id) {
         return carrierService.deactivateCarrier(id);
     }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public Boolean activateCarrier(@Argument Long id) {
+        return carrierService.activateCarrier(id);
+    }
 }

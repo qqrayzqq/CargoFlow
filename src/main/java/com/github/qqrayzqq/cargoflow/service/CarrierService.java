@@ -44,4 +44,14 @@ public class CarrierService {
         log.info("Carrier {} deactivated", carrierRepository.findById(id).get().getName());
         return true;
     }
+
+    public Boolean activateCarrier(Long id){
+        if(carrierRepository.findById(id).isEmpty()){
+            throw new NotFoundException("Carrier not found");
+        }
+        carrierRepository.activate(id);
+
+        log.info("Carrier {} activated", carrierRepository.findById(id).get().getName());
+        return true;
+    }
 }

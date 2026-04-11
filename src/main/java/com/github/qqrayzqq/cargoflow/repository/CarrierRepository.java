@@ -52,13 +52,17 @@ public class CarrierRepository {
                 .fetchOneInto(Carrier.class);
     }
 
-    public boolean deactivate(Long id) {
-        int updatedRows = dsl.update(CARRIERS)
+    public void deactivate(Long id) {
+        dsl.update(CARRIERS)
                 .set(CARRIERS.IS_ACTIVE, false)
                 .where(CARRIERS.ID.eq(id))
                 .execute();
-
-        return updatedRows > 0;
     }
 
+    public void activate(Long id) {
+        dsl.update(CARRIERS)
+                .set(CARRIERS.IS_ACTIVE, true)
+                .where(CARRIERS.ID.eq(id))
+                .execute();
+    }
 }

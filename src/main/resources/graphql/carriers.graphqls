@@ -19,4 +19,5 @@ extend type Query {
 extend type Mutation {
     createCarrier(input: CreateCarrierInput!): Carrier
     deactivateCarrier(id: ID!): Boolean
+    activateCarrier(id: ID!): Boolean
 }
