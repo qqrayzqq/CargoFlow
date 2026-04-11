@@ -28,7 +28,8 @@ A logistics management API built as a portfolio project to demonstrate productio
 
 - **Auth** — register and login with JWT token response
 - **Role hierarchy** — `ADMIN` → `MANAGER` → `SHIPPER`, enforced via `@PreAuthorize` on every resolver
-- **Shipment lifecycle** — create, track by number, assign carrier, update status, cancel
+- **Shipment lifecycle** — create, track by number, assign carrier, update status, cancel; every status change creates a timestamped event (shipment timeline)
+- **Carrier management** — create, deactivate, and reactivate carriers
 - **Price calculation** — real distance via Nominatim geocoding API (OpenStreetMap) + haversine formula + volumetric weight + fragile multiplier
 - **Address autocomplete** — Elasticsearch `search_as_you_type` with full-text search
 - **Event-driven indexing** — addresses indexed to ES after commit via `@TransactionalEventListener`
@@ -136,7 +137,7 @@ cd cargoflow
 ./mvnw spring-boot:run
 ```
 
-- GraphQL playground: `http://localhost:8080/graphiql`
+- GraphQL playground: `http://localhost:8080/graphiql` *(local profile only — disabled in production)*
 - Health check: `http://localhost:8080/actuator/health`
 
 Liquibase migrations run automatically on startup.
