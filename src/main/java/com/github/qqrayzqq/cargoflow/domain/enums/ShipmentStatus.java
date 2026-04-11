@@ -20,9 +20,9 @@ public enum ShipmentStatus {
         PICKED_UP.allowedNext = Set.of(IN_TRANSIT, CANCELLED);
         IN_TRANSIT.allowedNext = Set.of(CANCELLED, AT_HUB);
         AT_HUB.allowedNext = Set.of(CANCELLED, OUT_FOR_DELIVERY);
-        OUT_FOR_DELIVERY.allowedNext = Set.of(FAILED_ATTEMPT, DELIVERED);
+        OUT_FOR_DELIVERY.allowedNext = Set.of(FAILED_ATTEMPT, DELIVERED, CANCELLED);
         DELIVERED.allowedNext = Set.of();
-        FAILED_ATTEMPT.allowedNext = Set.of(OUT_FOR_DELIVERY, RETURNED);
+        FAILED_ATTEMPT.allowedNext = Set.of(OUT_FOR_DELIVERY, RETURNED, CANCELLED);
         RETURNED.allowedNext = Set.of();
         CANCELLED.allowedNext = Set.of();
     }
