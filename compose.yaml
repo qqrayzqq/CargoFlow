@@ -6,7 +6,7 @@ services:
       - POSTGRES_USER=cargoflow
       - POSTGRES_PASSWORD=cargoflow
     ports:
-      - '5432:5432'    # хост:контейнер — доступно снаружи (нужно jOOQ codegen)
+      - '5433:5432'    # хост:контейнер — доступно снаружи (нужно jOOQ codegen)
     volumes:
       - cargoflow_pg_data:/var/lib/postgresql/data  # данные не теряются при restart
 

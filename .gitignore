@@ -40,3 +40,6 @@ target/generated-sources/jooq/
 **/application-local.yml
 
 logs/
+
+test-addresses.txt
+test-users.txt
