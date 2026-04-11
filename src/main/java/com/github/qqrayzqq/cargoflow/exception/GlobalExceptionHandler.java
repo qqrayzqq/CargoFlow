@@ -6,6 +6,7 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.execution.ErrorType;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @Slf4j          // генерирует поле: private static final Logger log = LoggerFactory.getLogger(...)
@@ -66,6 +67,17 @@ public class GlobalExceptionHandler {
         return GraphqlErrorBuilder.newError()
                 .errorType(ErrorType.BAD_REQUEST)
                 .message(ex.getMessage())
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
+    }
+
+    @GraphQlExceptionHandler(AuthorizationDeniedException.class)
+    public GraphQLError handleAccessDenied(AuthorizationDeniedException ex, DataFetchingEnvironment env) {
+        log.warn("Access denied at {}", env.getExecutionStepInfo().getPath());
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.UNAUTHORIZED)
+                .message("Access Denied")
                 .path(env.getExecutionStepInfo().getPath())
                 .location(env.getField().getSourceLocation())
                 .build();
