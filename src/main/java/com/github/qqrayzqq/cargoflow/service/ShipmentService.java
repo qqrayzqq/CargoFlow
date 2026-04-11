@@ -94,4 +94,15 @@ public class ShipmentService {
         log.info("Shipment {} status changed to CANCELLED", id);
         return true;
     }
+
+    @Transactional
+    public ShipmentEvent addShipmentEvent(Long shipmentId, ShipmentStatus status, String location, String comment){
+        Shipment shipment = shipmentRepository.findById(shipmentId).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        if(!shipment.getStatus().canTransitionTo(status)){
+            throw new InvalidTransitionException("Cannot transition from " + shipment.getStatus() + " to " + status);
+        }
+        log.info("Shipment {} status changed to {}", shipmentId, status);
+        shipmentRepository.updateStatus(shipmentId, status);
+        return shipmentEventRepository.save(new ShipmentEvent(shipmentId, status, location, comment, OffsetDateTime.now()));
+    }
 }

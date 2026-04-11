@@ -7,10 +7,6 @@ type ShipmentEvent {
     createdAt: String!
 }
 
-extend type Query {
-    getEventsByShipmentId(shipmentId: ID!): [ShipmentEvent]
-}
-
 extend type Mutation {
     addShipmentEvent(
         shipmentId: ID!
