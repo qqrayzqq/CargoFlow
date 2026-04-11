@@ -47,7 +47,12 @@ public class JwtFilter extends OncePerRequestFilter {
         String username;
         try {
             username = jwtService.extractUsername(token);
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            request.setAttribute("jwt_error", "TOKEN_EXPIRED");
+            filterChain.doFilter(request, response);
+            return;
         } catch (io.jsonwebtoken.JwtException e) {
+            request.setAttribute("jwt_error", "TOKEN_INVALID");
             filterChain.doFilter(request, response);
             return;
         }
