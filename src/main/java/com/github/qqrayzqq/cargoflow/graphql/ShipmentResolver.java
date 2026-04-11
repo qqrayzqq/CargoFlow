@@ -45,6 +45,12 @@ public class ShipmentResolver {
         return shipmentService.getAllShipments(page != null ? page : 0, size != null ? size : 20);
     }
 
+    @QueryMapping
+    @PreAuthorize("hasRole('MANAGER')")
+    public List<Shipment> getShipmentsByShipperId(@Argument Long shipperId){
+        return shipmentService.getShipmentsByShipperId(shipperId);
+    }
+
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
     public Shipment createShipment(@Argument @Valid CreateShipmentDto input, @AuthenticationPrincipal UserDetails userDetails) {

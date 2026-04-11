@@ -105,4 +105,8 @@ public class ShipmentService {
         shipmentRepository.updateStatus(shipmentId, status);
         return shipmentEventRepository.save(new ShipmentEvent(shipmentId, status, location, comment, OffsetDateTime.now()));
     }
+
+    public List<Shipment> getShipmentsByShipperId(Long shipperId){
+        return shipmentRepository.findByShipperId(shipperId);
+    }
 }

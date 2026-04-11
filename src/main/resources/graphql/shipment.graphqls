@@ -51,6 +51,7 @@ extend type Query {
     getShipmentByTrackingNumber(trackingNumber: String!): Shipment
     getMyShipments: [Shipment]
     getAllShipments(page: Int = 0, size: Int = 20): [Shipment]
+    getShipmentsByShipperId(shipperId: ID!) : [Shipment]
     shipmentPrice(id: ID!): Float
 }
 
