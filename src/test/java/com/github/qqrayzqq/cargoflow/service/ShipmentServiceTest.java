@@ -90,29 +90,16 @@ class ShipmentServiceTest {
     class testCreateShipment{
 
         private AddressDto makeAddress() {
-            AddressDto a = new AddressDto();
-            a.setCountry("Czech Republic");
-            a.setZip("11000");
-            a.setCity("Prague");
-            a.setStreet("Václavské náměstí");
-            a.setBuildingNumber("1");
-            return a;
+            return new AddressDto("Czech Republic", "11000", "Prague", "Václavské náměstí", "1");
         }
 
         @Test
         void shouldReturnShipmentWhenCreated(){
-            CreateParcelDto parcel = new CreateParcelDto();
-            parcel.setWeight(new BigDecimal("2.5"));
-            parcel.setWidth(new BigDecimal("30"));
-            parcel.setHeight(new BigDecimal("20"));
-            parcel.setLength(new BigDecimal("40"));
-            parcel.setFragile(false);
-            parcel.setDescription("Books");
+            CreateParcelDto parcel = new CreateParcelDto(
+                    new BigDecimal("2.5"), new BigDecimal("30"), new BigDecimal("20"), new BigDecimal("40"), false, "Books"
+            );
 
-            CreateShipmentDto dto = new CreateShipmentDto();
-            dto.setFromAddress(makeAddress());
-            dto.setToAddress(makeAddress());
-            dto.setParcels(List.of(parcel));
+            CreateShipmentDto dto = new CreateShipmentDto(makeAddress(), makeAddress(), List.of(parcel));
 
             double[] fakeCoords = {50.0, 14.0};
             when(geocodingService.geocode(anyString())).thenReturn(fakeCoords);
@@ -129,10 +116,7 @@ class ShipmentServiceTest {
 
         @Test
         void shouldHandleNullCoordsFromGeocoder(){
-            CreateShipmentDto dto = new CreateShipmentDto();
-            dto.setFromAddress(makeAddress());
-            dto.setToAddress(makeAddress());
-            dto.setParcels(List.of());
+            CreateShipmentDto dto = new CreateShipmentDto(makeAddress(), makeAddress(), List.of());
 
             when(geocodingService.geocode(anyString())).thenReturn(null);
 
