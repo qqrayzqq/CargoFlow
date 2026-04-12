@@ -29,7 +29,7 @@ public class CarrierService {
     }
 
     public Carrier createCarrier(CreateCarrierDto dto){
-        Carrier newCarrier = new Carrier(dto.getName(), dto.getContactPhone());
+        Carrier newCarrier = new Carrier(dto.name(), dto.contactPhone());
 
         log.info("Carrier {} created", newCarrier.getName());
         return carrierRepository.save(newCarrier);

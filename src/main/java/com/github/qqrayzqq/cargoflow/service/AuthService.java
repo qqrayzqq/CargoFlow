@@ -25,10 +25,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public String login(LoginDto dto) {
-        User user = userRepository.findByEmail(dto.getEmail())
+        User user = userRepository.findByEmail(dto.email())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPasswordHash())) {
+        if (!passwordEncoder.matches(dto.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
 
@@ -38,15 +38,15 @@ public class AuthService {
 
     @Transactional
     public String register(RegisterDto dto) {
-        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(dto.username()).isPresent()) {
             throw new AlreadyExistsException("Username is already taken");
         }
-        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(dto.email()).isPresent()) {
             throw new AlreadyExistsException("Email is already taken");
         }
 
-        User newUser = new User(dto.getEmail(), dto.getUsername(), dto.getFullName(),
-                passwordEncoder.encode(dto.getPassword()));
+        User newUser = new User(dto.email(), dto.username(), dto.fullName(),
+                passwordEncoder.encode(dto.password()));
         newUser.setRole(UserRole.SHIPPER);
 
         userRepository.save(newUser);

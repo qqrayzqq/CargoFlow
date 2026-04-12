@@ -2,17 +2,8 @@ package com.github.qqrayzqq.cargoflow.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class LoginDto {
-    @Email
-    @NotBlank
-    private String email;
-    @NotBlank
-    private String password;
-}
+public record LoginDto(
+    @Email @NotBlank String email,
+    @NotBlank String password
+) {}

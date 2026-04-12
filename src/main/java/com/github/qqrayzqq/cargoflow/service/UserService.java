@@ -39,23 +39,23 @@ public class UserService {
 
     public String updateUser(UserDetails userDetails, UpdateUserDto dto){
         User user = getCurrentUser(userDetails);
-        if(dto.getFullName() != null){
-            user.setFullName(dto.getFullName());
+        if(dto.fullName() != null){
+            user.setFullName(dto.fullName());
         }
-        if(dto.getUsername() != null){
-            if(userRepository.findByUsername(dto.getUsername()).isPresent()){
+        if(dto.username() != null){
+            if(userRepository.findByUsername(dto.username()).isPresent()){
                 throw new AlreadyExistsException("This username is already occupied");
             }
-            user.setUsername(dto.getUsername());
+            user.setUsername(dto.username());
         }
-        if(dto.getPassword() != null){
-            user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        if(dto.password() != null){
+            user.setPasswordHash(passwordEncoder.encode(dto.password()));
         }
-        if(dto.getEmail() != null){
-            if(userRepository.findByEmail(dto.getEmail()).isPresent()){
+        if(dto.email() != null){
+            if(userRepository.findByEmail(dto.email()).isPresent()){
                 throw new AlreadyExistsException("This email is already occupied");
             }
-            user.setEmail(dto.getEmail());
+            user.setEmail(dto.email());
         }
         userRepository.update(user);
 

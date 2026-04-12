@@ -44,19 +44,19 @@ public class ShipmentService {
 
     public Shipment createShipment(CreateShipmentDto dto, String username){
         String fromAddressStr = new Address(
-                dto.getFromAddress().getCountry(),
-                dto.getFromAddress().getZip(),
-                dto.getFromAddress().getCity(),
-                dto.getFromAddress().getStreet(),
-                dto.getFromAddress().getBuildingNumber()
+                dto.fromAddress().country(),
+                dto.fromAddress().zip(),
+                dto.fromAddress().city(),
+                dto.fromAddress().street(),
+                dto.fromAddress().buildingNumber()
         ).toDisplayString();
 
         String toAddressStr = new Address(
-                dto.getToAddress().getCountry(),
-                dto.getToAddress().getZip(),
-                dto.getToAddress().getCity(),
-                dto.getToAddress().getStreet(),
-                dto.getToAddress().getBuildingNumber()
+                dto.toAddress().country(),
+                dto.toAddress().zip(),
+                dto.toAddress().city(),
+                dto.toAddress().street(),
+                dto.toAddress().buildingNumber()
         ).toDisplayString();
 
         double[] fromCoords = geocodingService.geocode(fromAddressStr);

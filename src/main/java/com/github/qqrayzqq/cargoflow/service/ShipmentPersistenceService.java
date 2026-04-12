@@ -36,8 +36,8 @@ public class ShipmentPersistenceService {
             trackingNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
         }
         log.info("Creating shipment for user: {}", username);
-        Address fromAddress = addressRepository.findOrCreate(new Address(dto.getFromAddress().getCountry(), dto.getFromAddress().getZip(), dto.getFromAddress().getCity(), dto.getFromAddress().getStreet(), dto.getFromAddress().getBuildingNumber()));
-        Address toAddress = addressRepository.findOrCreate(new Address(dto.getToAddress().getCountry(), dto.getToAddress().getZip(), dto.getToAddress().getCity(), dto.getToAddress().getStreet(), dto.getToAddress().getBuildingNumber()));
+        Address fromAddress = addressRepository.findOrCreate(new Address(dto.fromAddress().country(), dto.fromAddress().zip(), dto.fromAddress().city(), dto.fromAddress().street(), dto.fromAddress().buildingNumber()));
+        Address toAddress = addressRepository.findOrCreate(new Address(dto.toAddress().country(), dto.toAddress().zip(), dto.toAddress().city(), dto.toAddress().street(), dto.toAddress().buildingNumber()));
         if (fromCoords != null) addressRepository.updateCoordinates(fromAddress.getId(), fromCoords[0], fromCoords[1]);
         if (toCoords != null) addressRepository.updateCoordinates(toAddress.getId(), toCoords[0], toCoords[1]);
         applicationEventPublisher.publishEvent(new AddressEventDTO(
@@ -57,8 +57,8 @@ public class ShipmentPersistenceService {
                 toAddress.getBuildingNumber()
         ));
         User user = userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
-        List<Parcel> parcels = dto.getParcels().stream()
-                .map(p -> new Parcel(null, p.getWeight(), p.getWidth(), p.getHeight(), p.getLength(), p.isFragile(), p.getDescription()))
+        List<Parcel> parcels = dto.parcels().stream()
+                .map(p -> new Parcel(null, p.weight(), p.width(), p.height(), p.length(), p.isFragile(), p.description()))
                 .toList();
         Shipment newShipment = new Shipment(trackingNumber, ShipmentStatus.CREATED, OffsetDateTime.now(), user, null, fromAddress, toAddress);
         newShipment.setParcels(parcels);
