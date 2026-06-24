@@ -114,7 +114,6 @@ public class ShipmentRepository {
     }
 
     public Shipment save(Shipment shipment) {
-        // Адреса уже сохранены сервисом — берём их id напрямую
         Long shipmentId = dsl.insertInto(SHIPMENTS)
                 .set(SHIPMENTS.TRACKING_NUMBER, shipment.getTrackingNumber())
                 .set(SHIPMENTS.STATUS, shipment.getStatus().name())

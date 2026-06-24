@@ -14,7 +14,6 @@ import static com.github.qqrayzqq.cargoflow.jooq.Tables.USERS;
 @RequiredArgsConstructor
 public class UserRepository {
 
-    // DSLContext — главный объект jOOQ через который пишем все запросы
     private final DSLContext dsl;
 
     public Optional<User> findById(Long id) {

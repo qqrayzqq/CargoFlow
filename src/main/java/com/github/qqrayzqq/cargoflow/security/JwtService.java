@@ -20,78 +20,57 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
 
-    // Секретный ключ в формате Base64 — читается из application.yaml
     @Value("${jwt.secret}")
     private String secret;
 
-    // Время жизни токена в миллисекундах (3600000 = 1 час) — читается из application.yaml
     @Value("${jwt.expiration}")
     private long expiration;
 
-    // ── PUBLIC API ──────────────────────────────────────────────────────────
-
-    // Генерирует JWT токен для пользователя.
-    // Кладёт в payload: username (sub), роли (roles), время выдачи (iat), время истечения (exp).
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>(); // карта для дополнительных полей в payload
-
-        // Достаём строковые названия ролей из объектов GrantedAuthority: ["ROLE_ADMIN"]
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        claims.put("roles", roles); // добавляем роли в payload под ключом "roles"
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", roles);
 
         return Jwts.builder()
-                .claims(claims)                              // кладём наши дополнительные поля
-                .subject(userDetails.getUsername())          // поле "sub" — username пользователя
-                .issuedAt(new Date())                        // поле "iat" — время выдачи (сейчас)
-                .expiration(new Date(System.currentTimeMillis() + expiration)) // поле "exp" — время истечения
-                .signWith(getSigningKey())                   // подписываем токен нашим ключом
-                .compact();                                  // собираем в строку "xxxxx.yyyyy.zzzzz"
+                .claims(claims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey())
+                .compact();
     }
 
-    // Достаёт username из токена (поле "sub" в payload)
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Проверяет что токен валиден: принадлежит этому пользователю И ещё не истёк
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token); // достаём username из токена
-        return username.equals(userDetails.getUsername()) // username совпадает?
-                && !isTokenExpired(token);                // токен не истёк?
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    // ── PRIVATE HELPERS ─────────────────────────────────────────────────────
-
-    // Проверяет истёк ли токен — сравнивает поле "exp" с текущим временем
     private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration) // достаём дату истечения
-                .before(new Date());                       // она раньше чем сейчас?
+        return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-    // Универсальный метод для извлечения любого поля из payload.
-    // claimsResolver — функция которая говорит что именно достать.
-    // Например: Claims::getSubject вернёт String, Claims::getExpiration вернёт Date.
+    // Generic extractor — pass any Claims getter as a method reference (e.g. Claims::getSubject)
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        Claims claims = extractAllClaims(token); // парсим токен, получаем весь payload
-        return claimsResolver.apply(claims);     // применяем функцию — достаём нужное поле
+        return claimsResolver.apply(extractAllClaims(token));
     }
 
-    // Парсит токен и возвращает весь payload (Claims).
-    // Автоматически проверяет подпись — если она неверна, бросает исключение.
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(getSigningKey()) // указываем ключ для проверки подписи
+                .verifyWith(getSigningKey())
                 .build()
-                .parseSignedClaims(token)   // парсим и проверяем подпись
-                .getPayload();              // возвращаем payload: { sub, roles, iat, exp }
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    // Декодирует Base64 секрет и создаёт криптографический ключ для подписи/проверки токенов
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret); // Base64 строка → массив байт
-        return Keys.hmacShaKeyFor(keyBytes);              // из байт создаём объект SecretKey
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

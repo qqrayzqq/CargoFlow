@@ -12,8 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("local")
 public class LocalSecurityConfig {
 
+    // Runs before the main SecurityFilterChain (Order 2) to open GraphiQL without auth in local dev
     @Bean
-    @Order(1) // выполняется раньше основного SecurityFilterChain
+    @Order(1)
     public SecurityFilterChain graphiqlFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/graphiql/**")

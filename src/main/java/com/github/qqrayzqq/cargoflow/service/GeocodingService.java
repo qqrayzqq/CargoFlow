@@ -30,9 +30,6 @@ public class GeocodingService {
                 .build();
     }
 
-    /*
-     * возвращает координаты [latitude, longitude] или null если не найдено.
-     */
     public double[] geocode(String address) {
         log.debug("Geocoding request for: {}", address);
         try {

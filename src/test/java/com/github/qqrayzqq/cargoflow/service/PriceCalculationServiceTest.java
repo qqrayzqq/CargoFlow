@@ -17,7 +17,7 @@ class PriceCalculationServiceTest {
 
     private PriceCalculationService service;
 
-    // Прага → Брно ≈ 205 км
+    // Prague → Brno ≈ 205 km
     private static final double PRAGUE_LAT = 50.08;
     private static final double PRAGUE_LON = 14.44;
     private static final double BRNO_LAT   = 49.19;
@@ -33,12 +33,12 @@ class PriceCalculationServiceTest {
 
     private Shipment shipmentWithCoords() {
         Address from = new Address("CZ", "110 00", "Prague", "Vaclavske nam", "1");
-        from.setLatitude(PriceCalculationServiceTest.PRAGUE_LAT);
-        from.setLongitude(PriceCalculationServiceTest.PRAGUE_LON);
+        from.setLatitude(PRAGUE_LAT);
+        from.setLongitude(PRAGUE_LON);
 
         Address to = new Address("CZ", "602 00", "Brno", "Namesti Svobody", "1");
-        to.setLatitude(PriceCalculationServiceTest.BRNO_LAT);
-        to.setLongitude(PriceCalculationServiceTest.BRNO_LON);
+        to.setLatitude(BRNO_LAT);
+        to.setLongitude(BRNO_LON);
 
         Shipment s = new Shipment();
         s.setFromAddress(from);
@@ -69,13 +69,12 @@ class PriceCalculationServiceTest {
     void fragileParcel_appliesMultiplier() {
         Shipment s = shipmentWithCoords();
         s.setParcels(List.of(parcel(1.0, 10, true)));
-
         BigDecimal fragilePrice = service.calculatePrice(s);
 
         s.setParcels(List.of(parcel(1.0, 10, false)));
         BigDecimal normalPrice = service.calculatePrice(s);
 
-        // fragile должен быть ровно в 1.5 раза дороже
+        // fragile price must be exactly 1.5x the standard price
         assertThat(fragilePrice).isEqualByComparingTo(
                 normalPrice.multiply(new BigDecimal("1.5")).setScale(fragilePrice.scale(), java.math.RoundingMode.HALF_UP)
         );
@@ -83,8 +82,7 @@ class PriceCalculationServiceTest {
 
     @Test
     void volumetricWeightWins_whenBiggerThanActual() {
-        // Коробка 50x50x50 см = 125_000 см³ / 5000 = 25 кг объёмного веса
-        // Реальный вес = 1 кг → должен победить объёмный (25 кг)
+        // 50×50×50 cm box = 125 000 cm³ / 5000 = 25 kg volumetric weight, outweighs actual 1 kg
         Shipment light = shipmentWithCoords();
         light.setParcels(List.of(new Parcel(null,
                 new BigDecimal("1"),
@@ -94,11 +92,9 @@ class PriceCalculationServiceTest {
         Shipment heavy = shipmentWithCoords();
         heavy.setParcels(List.of(parcel(25.0, 10, false)));
 
-        // цены должны быть близки (оба используют 25 кг)
-        BigDecimal lightPrice = service.calculatePrice(light);
-        BigDecimal heavyPrice = service.calculatePrice(heavy);
-
-        assertThat(lightPrice).isEqualByComparingTo(heavyPrice);
+        // both should use 25 kg chargeable weight → equal prices
+        assertThat(service.calculatePrice(light))
+                .isEqualByComparingTo(service.calculatePrice(heavy));
     }
 
     @Test

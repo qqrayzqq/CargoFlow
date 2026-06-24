@@ -14,25 +14,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// @BatchMapping resolves N shipments' child collections in a single DB query, preventing N+1
 @Controller
 @RequiredArgsConstructor
 public class ShipmentBatchResolver {
+
     private final ParcelRepository parcelRepository;
     private final ShipmentEventRepository shipmentEventRepository;
 
     @BatchMapping
-    public Map<Shipment, List<Parcel>> parcels(List<Shipment> shipments){
+    public Map<Shipment, List<Parcel>> parcels(List<Shipment> shipments) {
         List<Long> ids = shipments.stream().map(Shipment::getId).toList();
-        List<Parcel> parcels = parcelRepository.findAllByShipmentId(ids);
-        Map<Long, List<Parcel>> grouped = parcels.stream().collect(Collectors.groupingBy(Parcel::getShipmentId));
-        return shipments.stream().collect(Collectors.toMap(shipment -> shipment, shipment -> new ArrayList<>(grouped.getOrDefault(shipment.getId(), List.of()))));
+        Map<Long, List<Parcel>> grouped = parcelRepository.findAllByShipmentId(ids).stream()
+                .collect(Collectors.groupingBy(Parcel::getShipmentId));
+        return shipments.stream().collect(Collectors.toMap(
+                s -> s,
+                s -> new ArrayList<>(grouped.getOrDefault(s.getId(), List.of()))));
     }
 
     @BatchMapping
-    public Map<Shipment, List<ShipmentEvent>> events(List<Shipment> shipments){
+    public Map<Shipment, List<ShipmentEvent>> events(List<Shipment> shipments) {
         List<Long> ids = shipments.stream().map(Shipment::getId).toList();
-        List<ShipmentEvent> events = shipmentEventRepository.findAllByShipmentId(ids);
-        Map<Long, List<ShipmentEvent>> grouped = events.stream().collect(Collectors.groupingBy(ShipmentEvent::getShipmentId));
-        return shipments.stream().collect(Collectors.toMap(shipment -> shipment, shipment -> new ArrayList<>(grouped.getOrDefault(shipment.getId(), List.of()))));
+        Map<Long, List<ShipmentEvent>> grouped = shipmentEventRepository.findAllByShipmentId(ids).stream()
+                .collect(Collectors.groupingBy(ShipmentEvent::getShipmentId));
+        return shipments.stream().collect(Collectors.toMap(
+                s -> s,
+                s -> new ArrayList<>(grouped.getOrDefault(s.getId(), List.of()))));
     }
 }
