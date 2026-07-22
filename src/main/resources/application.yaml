@@ -3,7 +3,7 @@ spring:
     name: cargoflow
 
   profiles:
-    active: local   # использует application-local.yaml (не коммитится в git)
+    active: local   # uses application-local.yaml (gitignored)
 
   # --- PostgreSQL DataSource ---
   datasource:
@@ -16,7 +16,7 @@ spring:
   jooq:
     sql-dialect: POSTGRES
 
-  # --- Liquibase: запускает SQL-миграции при старте приложения ---
+  # --- Liquibase: runs SQL migrations on app startup ---
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
@@ -27,14 +27,14 @@ spring:
   # --- GraphQL ---
   graphql:
     graphiql:
-      enabled: true      # включаем браузерный UI для тестирования GraphQL запросов
+      enabled: true      # browser UI for testing GraphQL queries
     http:
       path: /graphql
 
-  # --- Spring Docker Compose: автоматически стартует compose.yaml при запуске приложения ---
+  # --- Spring Docker Compose: auto-starts compose.yaml on app startup ---
   docker:
     compose:
-      lifecycle-management: start-and-stop  # поднимает при старте, гасит при остановке
+      lifecycle-management: start-and-stop  # start on boot, stop on shutdown
 
 server:
   port: 8080

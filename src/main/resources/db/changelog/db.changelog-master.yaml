@@ -1,7 +1,5 @@
 databaseChangeLog:
-  # Подключаем файлы миграций по порядку.
-  # Каждый новый файл добавляем сюда — Liquibase выполнит их последовательно.
-  # Уже выполненные миграции Liquibase НЕ повторяет (хранит историю в databasechangelog).
+  # Migrations run in order — add new files here, Liquibase tracks history in databasechangelog.
 
   - include:
       file: db/changelog/migrations/v1.0-placeholder.yaml

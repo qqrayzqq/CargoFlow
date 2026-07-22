@@ -36,7 +36,7 @@
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
 
-        <!-- JWT: генерация и валидация токенов -->
+        <!-- JWT: token generation and validation -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -169,10 +169,8 @@
                 </executions>
             </plugin>
 
-            <!--
-                build-helper: регистрирует папку target/generated-sources/jooq
-                как source root, чтобы IntelliJ и компилятор видели сгенерированные классы
-            -->
+            <!-- build-helper: registers target/generated-sources/jooq as a source root -->
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -195,15 +193,7 @@
     </build>
 
     <profiles>
-        <!--
-            Профиль codegen: запускать вручную ПОСЛЕ старта Docker Compose.
-            Команда: ./mvnw generate-sources -P codegen
-
-            Что делает:
-            1. Подключается к PostgreSQL (БД должна быть запущена)
-            2. Читает схему БД (таблицы, которые создал Liquibase)
-            3. Генерирует типобезопасные Java-классы в target/generated-sources/jooq
-        -->
+        <!-- codegen profile: run manually after Docker Compose is up: ./mvnw generate-sources -P codegen -->
         <profile>
             <id>codegen</id>
             <build>
@@ -222,7 +212,7 @@
                             </execution>
                         </executions>
                         <dependencies>
-                            <!-- Драйвер PostgreSQL нужен самому плагину для подключения -->
+                            <!-- PostgreSQL driver for the plugin's own connection -->
                             <dependency>
                                 <groupId>org.postgresql</groupId>
                                 <artifactId>postgresql</artifactId>
@@ -240,14 +230,13 @@
                                 <database>
                                     <name>org.jooq.meta.postgres.PostgresDatabase</name>
                                     <inputSchema>public</inputSchema>
-                                    <!-- исключаем служебные таблицы Liquibase -->
+                                    <!-- exclude Liquibase's own tracking tables -->
                                     <excludes>databasechangelog|databasechangeloglock</excludes>
                                 </database>
                                 <generate>
-                                    <!-- генерировать Lombok @Data на Records -->
                                     <pojos>true</pojos>
                                     <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
-                                    <!-- включаем fluent setters -->
+                                    <!-- enable fluent setters -->
                                     <fluentSetters>true</fluentSetters>
                                 </generate>
                                 <target>
