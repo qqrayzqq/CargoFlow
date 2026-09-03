@@ -2,7 +2,7 @@ package com.github.qqrayzqq.cargoflow.domain.enums;
 
 import java.util.Set;
 
-public enum ShipmentStatus {
+public enum  ShipmentStatus {
     CREATED,
     PICKED_UP,
     IN_TRANSIT,

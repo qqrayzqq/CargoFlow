@@ -222,7 +222,7 @@
                         <configuration>
                             <jdbc>
                                 <driver>org.postgresql.Driver</driver>
-                                <url>jdbc:postgresql://localhost:5432/cargoflow</url>
+                                <url>jdbc:postgresql://localhost:5433/cargoflow</url>
                                 <user>cargoflow</user>
                                 <password>cargoflow</password>
                             </jdbc>
