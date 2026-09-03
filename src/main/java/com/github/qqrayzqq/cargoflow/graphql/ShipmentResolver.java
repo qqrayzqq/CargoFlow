@@ -3,6 +3,7 @@ package com.github.qqrayzqq.cargoflow.graphql;
 import com.github.qqrayzqq.cargoflow.domain.Shipment;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
+import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
 import com.github.qqrayzqq.cargoflow.service.ShipmentService;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
@@ -23,8 +24,8 @@ public class ShipmentResolver {
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
-    public Shipment getShipmentById(@Argument Long id) {
-        return shipmentService.getShipmentById(id);
+    public Shipment getShipmentById(@Argument Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return shipmentService.getShipmentById(id, userDetails.getUsername());
     }
 
     @QueryMapping
@@ -71,7 +72,7 @@ public class ShipmentResolver {
 
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
-    public Boolean cancelShipment(@Argument Long id) {
-        return shipmentService.cancelShipment(id);
+    public Boolean cancelShipment(@Argument Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return shipmentService.cancelShipment(id, userDetails.getUsername());
     }
 }

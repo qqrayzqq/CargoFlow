@@ -3,6 +3,7 @@ package com.github.qqrayzqq.cargoflow.exception;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.execution.ErrorType;
@@ -44,6 +45,17 @@ public class GlobalExceptionHandler {
         log.warn("Auth failed: {}", ex.getMessage());
         return GraphqlErrorBuilder.newError()
                 .errorType(ErrorType.UNAUTHORIZED)
+                .message(ex.getMessage())
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
+    }
+
+    @GraphQlExceptionHandler(ForbiddenException.class)
+    public GraphQLError handleForbiddenException(ForbiddenException ex, DataFetchingEnvironment env){
+        log.warn("Access denied: {}", ex.getMessage());
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.FORBIDDEN)
                 .message(ex.getMessage())
                 .path(env.getExecutionStepInfo().getPath())
                 .location(env.getField().getSourceLocation())

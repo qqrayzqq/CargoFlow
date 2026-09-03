@@ -3,6 +3,7 @@ package com.github.qqrayzqq.cargoflow.service;
 import com.github.qqrayzqq.cargoflow.domain.*;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
+import com.github.qqrayzqq.cargoflow.exception.ForbiddenException;
 import com.github.qqrayzqq.cargoflow.exception.InvalidTransitionException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
@@ -25,8 +26,11 @@ public class ShipmentService {
     private final ShipmentPersistenceService shipmentPersistenceService;
     private final ShipmentEventRepository shipmentEventRepository;
 
-    public Shipment getShipmentById(Long id){
-        return shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+    public Shipment getShipmentById(Long id, String username){
+        Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
+        if(!shipment.getShipper().equals(user)) throw new ForbiddenException("You don't have access to this shipment");
+        return shipment;
     }
 
     public Shipment getShipmentByTrackingNumber(String trackingNumber){
@@ -84,11 +88,13 @@ public class ShipmentService {
     }
 
     @Transactional
-    public Boolean cancelShipment(Long id){
+    public Boolean cancelShipment(Long id, String username){
         Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
         if(!shipment.getStatus().canTransitionTo(ShipmentStatus.CANCELLED)){
             throw new InvalidTransitionException("Cannot transition from " + shipment.getStatus() + " to CANCELLED");
         }
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
+        if(!shipment.getShipper().equals(user)) throw new ForbiddenException("You can't cancel this shipment");
         shipmentRepository.updateStatus(id, ShipmentStatus.CANCELLED);
         shipmentEventRepository.save(new ShipmentEvent(id, ShipmentStatus.CANCELLED, null, null, OffsetDateTime.now()));
         log.info("Shipment {} status changed to CANCELLED", id);

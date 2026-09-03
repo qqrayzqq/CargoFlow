@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,6 +21,9 @@ class ShipmentResolverTest {
 
     @Mock
     ShipmentService shipmentService;
+
+    @Mock
+    UserDetails userDetails;
 
     @InjectMocks
     ShipmentResolver shipmentResolver;
@@ -42,12 +46,13 @@ class ShipmentResolverTest {
         Shipment expected = new Shipment();
         expected.setId(2L);
 
-        when(shipmentService.getShipmentById(2L)).thenReturn(expected);
+        when(userDetails.getUsername()).thenReturn("john");
+        when(shipmentService.getShipmentById(2L, "john")).thenReturn(expected);
 
-        Shipment result = shipmentResolver.getShipmentById(2L);
+        Shipment result = shipmentResolver.getShipmentById(2L, userDetails);
 
         assertEquals(expected, result);
-        verify(shipmentService).getShipmentById(2L);
+        verify(shipmentService).getShipmentById(2L, "john");
     }
 
     @Test
@@ -66,11 +71,12 @@ class ShipmentResolverTest {
 
     @Test
     void shouldCancelShipment(){
-        when(shipmentService.cancelShipment(1L)).thenReturn(true);
+        when(userDetails.getUsername()).thenReturn("john");
+        when(shipmentService.cancelShipment(1L, "john")).thenReturn(true);
 
-        Boolean result = shipmentResolver.cancelShipment(1L);
+        Boolean result = shipmentResolver.cancelShipment(1L, userDetails);
 
         assertTrue(result);
-        verify(shipmentService).cancelShipment(1L);
+        verify(shipmentService).cancelShipment(1L, "john");
     }
 }

@@ -7,6 +7,7 @@ import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.address.AddressDto;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateParcelDto;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
+import com.github.qqrayzqq.cargoflow.exception.ForbiddenException;
 import com.github.qqrayzqq.cargoflow.exception.InvalidTransitionException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
@@ -48,20 +49,46 @@ class ShipmentServiceTest {
     class testGetShipmentById{
         @Test
         void shouldReturnShipmentWhenFound() {
+            User fakeUser = new User();
+            fakeUser.setId(1L);
+            fakeUser.setUsername("john");
+
             Shipment fakeShipment = new Shipment();
             fakeShipment.setId(1L);
             fakeShipment.setTrackingNumber("18321EB819");
+            fakeShipment.setShipper(fakeUser);
 
             when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
+            when(userRepository.findByUsername("john")).thenReturn(Optional.of(fakeUser));
 
-            Shipment result = shipmentService.getShipmentById(1L);
+            Shipment result = shipmentService.getShipmentById(1L, "john");
 
             assertEquals("18321EB819", result.getTrackingNumber());
         }
 
         @Test
         void shouldThrowNotFoundException() {
-            assertThrows(NotFoundException.class, () -> shipmentService.getShipmentById(1L));
+            assertThrows(NotFoundException.class, () -> shipmentService.getShipmentById(1L, "john"));
+        }
+
+        @Test
+        void shouldThrowForbiddenExceptionWhenNotOwner() {
+            User owner = new User();
+            owner.setId(1L);
+            owner.setUsername("john");
+
+            User otherUser = new User();
+            otherUser.setId(2L);
+            otherUser.setUsername("mallory");
+
+            Shipment fakeShipment = new Shipment();
+            fakeShipment.setId(1L);
+            fakeShipment.setShipper(owner);
+
+            when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
+            when(userRepository.findByUsername("mallory")).thenReturn(Optional.of(otherUser));
+
+            assertThrows(ForbiddenException.class, () -> shipmentService.getShipmentById(1L, "mallory"));
         }
     }
 
@@ -169,20 +196,26 @@ class ShipmentServiceTest {
     class testCancelShipment{
         @Test
         void shouldCancelShipmentCorrect(){
+            User fakeUser = new User();
+            fakeUser.setId(1L);
+            fakeUser.setUsername("john");
+
             Shipment fakeShipment = new Shipment();
             fakeShipment.setId(1L);
             fakeShipment.setStatus(ShipmentStatus.CREATED);
+            fakeShipment.setShipper(fakeUser);
 
             when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
+            when(userRepository.findByUsername("john")).thenReturn(Optional.of(fakeUser));
 
-            assertTrue(shipmentService.cancelShipment(1L));
+            assertTrue(shipmentService.cancelShipment(1L, "john"));
 
             verify(shipmentRepository).updateStatus(1L, ShipmentStatus.CANCELLED);
         }
 
         @Test
         void shouldThrowNotFoundExceptionWhenShipmentNotFound(){
-            assertThrows(NotFoundException.class, () -> shipmentService.cancelShipment(1L));
+            assertThrows(NotFoundException.class, () -> shipmentService.cancelShipment(1L, "john"));
         }
 
         @Test
@@ -193,7 +226,29 @@ class ShipmentServiceTest {
 
             when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
 
-            assertThrows(InvalidTransitionException.class, () -> shipmentService.cancelShipment(1L));
+            assertThrows(InvalidTransitionException.class, () -> shipmentService.cancelShipment(1L, "john"));
+            verify(shipmentRepository, never()).updateStatus(any(), any());
+        }
+
+        @Test
+        void shouldThrowForbiddenExceptionWhenNotOwner(){
+            User owner = new User();
+            owner.setId(1L);
+            owner.setUsername("john");
+
+            User otherUser = new User();
+            otherUser.setId(2L);
+            otherUser.setUsername("mallory");
+
+            Shipment fakeShipment = new Shipment();
+            fakeShipment.setId(1L);
+            fakeShipment.setStatus(ShipmentStatus.CREATED);
+            fakeShipment.setShipper(owner);
+
+            when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
+            when(userRepository.findByUsername("mallory")).thenReturn(Optional.of(otherUser));
+
+            assertThrows(ForbiddenException.class, () -> shipmentService.cancelShipment(1L, "mallory"));
             verify(shipmentRepository, never()).updateStatus(any(), any());
         }
     }

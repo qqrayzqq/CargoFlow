@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -22,9 +24,9 @@ public class PriceResolver {
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
-    public BigDecimal shipmentPrice(@Argument Long id) {
-        Shipment shipment = shipmentService.getShipmentById(id);
-        shipment.setParcels(parcelService.getParcelsByShipmentId(id));
+    public BigDecimal shipmentPrice(@Argument Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        Shipment shipment = shipmentService.getShipmentById(id, userDetails.getUsername());
+        shipment.setParcels(parcelService.getParcelsByShipmentId(id, userDetails.getUsername()));
         return priceCalculationService.calculatePrice(shipment);
     }
 }
