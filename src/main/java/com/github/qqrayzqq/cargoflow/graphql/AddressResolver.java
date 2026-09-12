@@ -1,11 +1,13 @@
 package com.github.qqrayzqq.cargoflow.graphql;
 
 import com.github.qqrayzqq.cargoflow.domain.Address;
+import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
 import com.github.qqrayzqq.cargoflow.service.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -17,8 +19,8 @@ public class AddressResolver {
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
-    public Address getAddressById(@Argument Long id) {
-        return addressService.getAddressById(id);
+    public Address getAddressById(@Argument Long id, @AuthenticationPrincipal UserDetailsPrincipal authenticatedUser) {
+        return addressService.getAddressById(id, authenticatedUser.getUser().getId(), authenticatedUser.getUser().getRole());
     }
 
     @QueryMapping

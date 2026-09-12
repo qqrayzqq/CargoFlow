@@ -2,12 +2,14 @@ package com.github.qqrayzqq.cargoflow.graphql;
 
 import com.github.qqrayzqq.cargoflow.domain.Carrier;
 import com.github.qqrayzqq.cargoflow.dto.carrier.CreateCarrierDto;
+import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
 import com.github.qqrayzqq.cargoflow.service.CarrierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -31,8 +33,8 @@ public class CarrierResolver {
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
-    public Carrier getCarrierByShipmentId(@Argument Long shipmentId) {
-        return carrierService.getCarrierByShipmentId(shipmentId);
+    public Carrier getCarrierByShipmentId(@Argument Long shipmentId, @AuthenticationPrincipal UserDetailsPrincipal authenticatedUser) {
+        return carrierService.getCarrierByShipmentId(shipmentId, authenticatedUser.getUser().getId());
     }
 
     @MutationMapping

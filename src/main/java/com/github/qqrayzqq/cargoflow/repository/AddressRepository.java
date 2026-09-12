@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 import static com.github.qqrayzqq.cargoflow.jooq.Tables.ADDRESSES;
+import static com.github.qqrayzqq.cargoflow.jooq.Tables.SHIPMENTS;
 
 @Repository
 @RequiredArgsConstructor
@@ -55,5 +56,15 @@ public class AddressRepository {
                 address.getCountry(), address.getZip(), address.getCity(),
                 address.getStreet(), address.getBuildingNumber()
         ).orElseGet(() -> save(address));
+    }
+
+    public boolean existsByShipperIdAndAddressId(Long shipperId, Long addressId){
+        return dsl.fetchExists(
+                dsl.selectOne()
+                        .from(SHIPMENTS)
+                        .where(SHIPMENTS.SHIPPER_ID.eq(shipperId))
+                        .and(SHIPMENTS.FROM_ADDRESS_ID.eq(addressId)
+                                .or(SHIPMENTS.TO_ADDRESS_ID.eq(addressId)))
+        );
     }
 }

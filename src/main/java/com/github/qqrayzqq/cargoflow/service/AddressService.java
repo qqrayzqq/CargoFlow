@@ -1,10 +1,13 @@
 package com.github.qqrayzqq.cargoflow.service;
 
 import com.github.qqrayzqq.cargoflow.domain.Address;
+import com.github.qqrayzqq.cargoflow.domain.enums.UserRole;
 import com.github.qqrayzqq.cargoflow.elasticsearch.document.AddressDocument;
 import com.github.qqrayzqq.cargoflow.elasticsearch.repository.AddressSearchRepository;
+import com.github.qqrayzqq.cargoflow.exception.ForbiddenException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.AddressRepository;
+import com.github.qqrayzqq.cargoflow.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +18,10 @@ import java.util.List;
 public class AddressService {
     private final AddressSearchRepository addressSearchRepository;
     private final AddressRepository addressRepository;
+    private final UserRepository userRepository;
 
-    public Address getAddressById(Long id){
+    public Address getAddressById(Long id, Long userId, UserRole role){
+        if(role == UserRole.SHIPPER && !addressRepository.existsByShipperIdAndAddressId(userId, id)) throw new ForbiddenException("You can't get this address");
         return addressRepository.findById(id).orElseThrow(() -> new NotFoundException("Address not found"));
     }
 
