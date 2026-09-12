@@ -17,7 +17,10 @@ import java.util.Map;
 @Service
 public class GeocodingService {
 
+    private static final long MIN_INTERVAL_MS = 1100;
+
     private final RestClient restClient;
+    private long nextAllowedRequestTime = 0;
 
     public GeocodingService(@Value("${cargoflow.geocoding.base-url}") String baseUrl) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -31,6 +34,7 @@ public class GeocodingService {
     }
 
     public double[] geocode(String address) {
+        throttle();
         log.debug("Geocoding request for: {}", address);
         try {
             List<Map<String, Object>> results = restClient.get()
@@ -49,6 +53,22 @@ public class GeocodingService {
         } catch (RestClientException e) {
             log.warn("Geocoding failed for address '{}': {}", address, e.getMessage());
             throw new BadRequestException("Geocoding service unavailable, try again later");
+        }
+    }
+
+    private synchronized void throttle() {
+        long now = System.currentTimeMillis();
+        long waitUntil = Math.max(now, nextAllowedRequestTime);
+        nextAllowedRequestTime = waitUntil + MIN_INTERVAL_MS;
+
+        long sleepTime = waitUntil - now;
+        if (sleepTime > 0) {
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new BadRequestException("Geocoding interrupted");
+            }
         }
     }
 }
