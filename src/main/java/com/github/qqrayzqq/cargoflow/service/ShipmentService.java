@@ -3,12 +3,14 @@ package com.github.qqrayzqq.cargoflow.service;
 import com.github.qqrayzqq.cargoflow.domain.*;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
+import com.github.qqrayzqq.cargoflow.exception.BadRequestException;
 import com.github.qqrayzqq.cargoflow.exception.ForbiddenException;
 import com.github.qqrayzqq.cargoflow.exception.InvalidTransitionException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.exception.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class ShipmentService {
     private final GeocodingService geocodingService;
     private final ShipmentPersistenceService shipmentPersistenceService;
     private final ShipmentEventRepository shipmentEventRepository;
+    private static final int MAX_ATTEMPTS = 3;
 
     public Shipment getShipmentById(Long id, String username){
         Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
@@ -65,7 +68,17 @@ public class ShipmentService {
 
         double[] fromCoords = geocodingService.geocode(fromAddressStr);
         double[] toCoords = geocodingService.geocode(toAddressStr);
-        return shipmentPersistenceService.save(username, dto, fromCoords, toCoords);
+        int attempts = 0;
+        while (true) {
+            try {
+                return shipmentPersistenceService.save(username, dto, fromCoords, toCoords);
+            } catch (DataAccessException e) {
+                attempts++;
+                if (attempts >= MAX_ATTEMPTS) {
+                    throw e;
+                }
+            }
+        }
     }
 
     @Transactional
@@ -82,7 +95,8 @@ public class ShipmentService {
     @Transactional
     public Shipment assignCarrier(Long id, Long carrierId) {
         shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
-        carrierRepository.findById(carrierId).orElseThrow(() -> new NotFoundException("Carrier not found"));
+        Carrier carrier = carrierRepository.findById(carrierId).orElseThrow(() -> new NotFoundException("Carrier not found"));
+        if(!carrier.isActive()) throw new BadRequestException("You can't assign this carrier");
         log.info("Carrier {} assigned to shipment {}", carrierId, id);
         return shipmentRepository.assignCarrier(id, carrierId);
     }
