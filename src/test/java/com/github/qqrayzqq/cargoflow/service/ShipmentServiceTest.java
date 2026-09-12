@@ -11,6 +11,7 @@ import com.github.qqrayzqq.cargoflow.exception.ForbiddenException;
 import com.github.qqrayzqq.cargoflow.exception.InvalidTransitionException;
 import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.*;
+import org.jooq.True;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -297,6 +298,7 @@ class ShipmentServiceTest {
             Carrier fakeCarrier = new Carrier();
             fakeCarrier.setId(2L);
             fakeCarrier.setName("DHL");
+            fakeCarrier.setActive(true);
 
             when(shipmentRepository.findById(1L)).thenReturn(Optional.of(fakeShipment));
             when(carrierRepository.findById(2L)).thenReturn(Optional.of(fakeCarrier));
