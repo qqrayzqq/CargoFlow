@@ -5,13 +5,15 @@ import com.github.qqrayzqq.cargoflow.domain.enums.UserRole;
 import com.github.qqrayzqq.cargoflow.dto.user.LoginDto;
 import com.github.qqrayzqq.cargoflow.dto.user.RegisterDto;
 import com.github.qqrayzqq.cargoflow.exception.AlreadyExistsException;
-import com.github.qqrayzqq.cargoflow.exception.InvalidCredentialsException;
-import com.github.qqrayzqq.cargoflow.exception.NotFoundException;
 import com.github.qqrayzqq.cargoflow.repository.UserRepository;
 import com.github.qqrayzqq.cargoflow.security.JwtService;
 import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,17 +25,15 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     public String login(LoginDto dto) {
         User user = userRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        if (!passwordEncoder.matches(dto.password(), user.getPasswordHash())) {
-            throw new InvalidCredentialsException();
-        }
-
-        log.info("User {} logged in", user.getUsername());
-        return jwtService.generateToken(new UserDetailsPrincipal(user));
+                .orElseThrow(() -> new BadCredentialsException("Bad credentials"));
+        UsernamePasswordAuthenticationToken data = new UsernamePasswordAuthenticationToken(user.getUsername(), dto.password());
+        Authentication authenticate = authenticationManager.authenticate(data);
+        UserDetailsPrincipal principal = (UserDetailsPrincipal) authenticate.getPrincipal();
+        return jwtService.generateToken(principal);
     }
 
     @Transactional

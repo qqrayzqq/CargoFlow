@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -43,6 +44,17 @@ public class GlobalExceptionHandler {
     @GraphQlExceptionHandler(InvalidCredentialsException.class)
     public GraphQLError handleInvalidCredentials(InvalidCredentialsException ex, DataFetchingEnvironment env) {
         log.warn("Auth failed: {}", ex.getMessage());
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.UNAUTHORIZED)
+                .message(ex.getMessage())
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
+    }
+
+    @GraphQlExceptionHandler(AuthenticationException.class)
+    public GraphQLError handleAuthenticationException(AuthenticationException ex, DataFetchingEnvironment env){
+        log.warn("Auth failed: {}" , ex.getMessage());
         return GraphqlErrorBuilder.newError()
                 .errorType(ErrorType.UNAUTHORIZED)
                 .message(ex.getMessage())
