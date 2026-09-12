@@ -16,6 +16,8 @@ import static com.github.qqrayzqq.cargoflow.jooq.Tables.*;
 @RequiredArgsConstructor
 public class ShipmentRepository {
 
+    private static final int MAX_PAGE_SIZE = 100;
+
     private final ParcelRepository parcelRepository;
     private final DSLContext dsl;
 
@@ -107,9 +109,10 @@ public class ShipmentRepository {
     }
 
     public List<Shipment> findAll(int page, int size) {
+        int cappedSize = Math.min(size, MAX_PAGE_SIZE);
         return baseSelect()
-                .limit(size)
-                .offset((long) page * size)
+                .limit(cappedSize)
+                .offset((long) page * cappedSize)
                 .fetch(this::mapRecord);
     }
 
