@@ -30,4 +30,5 @@ public enum  ShipmentStatus {
     public boolean canTransitionTo(ShipmentStatus next){
         return allowedNext.contains(next);
     }
+    public boolean isTerminal(){ return this.allowedNext.isEmpty();}
 }

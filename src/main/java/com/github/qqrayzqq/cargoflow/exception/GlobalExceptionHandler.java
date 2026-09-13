@@ -41,17 +41,6 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @GraphQlExceptionHandler(InvalidCredentialsException.class)
-    public GraphQLError handleInvalidCredentials(InvalidCredentialsException ex, DataFetchingEnvironment env) {
-        log.warn("Auth failed: {}", ex.getMessage());
-        return GraphqlErrorBuilder.newError()
-                .errorType(ErrorType.UNAUTHORIZED)
-                .message(ex.getMessage())
-                .path(env.getExecutionStepInfo().getPath())
-                .location(env.getField().getSourceLocation())
-                .build();
-    }
-
     @GraphQlExceptionHandler(AuthenticationException.class)
     public GraphQLError handleAuthenticationException(AuthenticationException ex, DataFetchingEnvironment env){
         log.warn("Auth failed: {}" , ex.getMessage());

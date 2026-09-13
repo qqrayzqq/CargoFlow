@@ -94,7 +94,8 @@ public class ShipmentService {
 
     @Transactional
     public Shipment assignCarrier(Long id, Long carrierId) {
-        shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment not found"));
+        if(shipment.getStatus().isTerminal())throw new BadRequestException("Cannot assign carrier to a shipment with terminal status " + shipment.getStatus());
         Carrier carrier = carrierRepository.findById(carrierId).orElseThrow(() -> new NotFoundException("Carrier not found"));
         if(!carrier.isActive()) throw new BadRequestException("You can't assign this carrier");
         log.info("Carrier {} assigned to shipment {}", carrierId, id);

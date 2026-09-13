@@ -24,8 +24,8 @@ public class CarrierService {
         return carrierRepository.findById(id).orElseThrow(() -> new NotFoundException("Carrier not found"));
     }
 
-    public List<Carrier> getAllCarriers(){
-        return carrierRepository.findAll();
+    public List<Carrier> getAllCarriers(int page, int size){
+        return carrierRepository.findAll(page, size);
     }
 
     public Carrier getCarrierByShipmentId(Long shipmentId, Long userId){

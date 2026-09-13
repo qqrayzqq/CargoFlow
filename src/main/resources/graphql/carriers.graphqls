@@ -12,7 +12,7 @@ input CreateCarrierInput{
 
 extend type Query {
     getCarrierById(id: ID!): Carrier
-    getAllCarriers: [Carrier]
+    getAllCarriers(page: Int = 0, size: Int = 20): [Carrier]
     getCarrierByShipmentId(shipmentId: ID!): Carrier
 }
 

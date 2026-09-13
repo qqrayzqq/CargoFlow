@@ -35,7 +35,7 @@ input UpdateUserInput{
 extend type Query{
     getUserById(id: ID!): User
     getCurrentUser: User
-    getAllUsers: [User]
+    getAllUsers(page: Int = 0, size: Int = 20): [User]
 }
 
 extend type Mutation{

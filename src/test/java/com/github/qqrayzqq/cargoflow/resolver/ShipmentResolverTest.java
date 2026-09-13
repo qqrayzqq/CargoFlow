@@ -1,7 +1,9 @@
 package com.github.qqrayzqq.cargoflow.resolver;
 
+import com.github.qqrayzqq.cargoflow.domain.Address;
 import com.github.qqrayzqq.cargoflow.domain.Shipment;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
+import com.github.qqrayzqq.cargoflow.dto.shipment.PublicShipmentTracking;
 import com.github.qqrayzqq.cargoflow.graphql.ShipmentResolver;
 import com.github.qqrayzqq.cargoflow.service.ShipmentService;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.time.OffsetDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,14 +34,20 @@ class ShipmentResolverTest {
 
     @Test
     void shouldGetShipmentByTrackingNumber(){
-        Shipment expected = new Shipment();
-        expected.setTrackingNumber("B7319H7421");
+        Address fromAddress = new Address("Czechia", "11000", "Prague", "Wenceslas Square", "1");
+        Address toAddress = new Address("Germany", "10115", "Berlin", "Unter den Linden", "1");
 
-        when(shipmentService.getShipmentByTrackingNumber("B7319H7421")).thenReturn(expected);
+        Shipment shipment = new Shipment("B7319H7421", ShipmentStatus.CREATED, OffsetDateTime.now(),
+                null, null, fromAddress, toAddress);
 
-        Shipment result = shipmentResolver.getShipmentByTrackingNumber("B7319H7421");
+        when(shipmentService.getShipmentByTrackingNumber("B7319H7421")).thenReturn(shipment);
 
-        assertEquals(expected, result);
+        PublicShipmentTracking result = shipmentResolver.getShipmentByTrackingNumber("B7319H7421");
+
+        assertEquals("B7319H7421", result.getTrackingNumber());
+        assertEquals(ShipmentStatus.CREATED, result.getStatus());
+        assertEquals("Prague", result.getFromAddress().getCity());
+        assertEquals("Berlin", result.getToAddress().getCity());
         verify(shipmentService).getShipmentByTrackingNumber("B7319H7421");
     }
 

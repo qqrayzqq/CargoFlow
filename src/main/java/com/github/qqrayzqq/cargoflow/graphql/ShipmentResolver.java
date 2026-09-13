@@ -3,7 +3,9 @@ package com.github.qqrayzqq.cargoflow.graphql;
 import com.github.qqrayzqq.cargoflow.domain.Shipment;
 import com.github.qqrayzqq.cargoflow.domain.enums.ShipmentStatus;
 import com.github.qqrayzqq.cargoflow.dto.shipment.CreateShipmentDto;
-import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
+import com.github.qqrayzqq.cargoflow.dto.shipment.PublicAddress;
+import com.github.qqrayzqq.cargoflow.dto.shipment.PublicShipmentEvent;
+import com.github.qqrayzqq.cargoflow.dto.shipment.PublicShipmentTracking;
 import com.github.qqrayzqq.cargoflow.service.ShipmentService;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
@@ -30,8 +32,20 @@ public class ShipmentResolver {
 
     @QueryMapping
     @PreAuthorize("permitAll()")
-    public Shipment getShipmentByTrackingNumber(@Argument String trackingNumber) {
-        return shipmentService.getShipmentByTrackingNumber(trackingNumber);
+    public PublicShipmentTracking getShipmentByTrackingNumber(@Argument String trackingNumber) {
+        Shipment shipment = shipmentService.getShipmentByTrackingNumber(trackingNumber);
+
+        List<PublicShipmentEvent> events = shipment.getEvents().stream()
+                .map(event -> new PublicShipmentEvent(event.getStatus(), event.getCreatedAt()))
+                .toList();
+
+        return new PublicShipmentTracking(
+                shipment.getTrackingNumber(),
+                shipment.getStatus(),
+                new PublicAddress(shipment.getFromAddress().getCity()),
+                new PublicAddress(shipment.getToAddress().getCity()),
+                events
+        );
     }
 
     @QueryMapping

@@ -9,6 +9,7 @@ import com.github.qqrayzqq.cargoflow.security.JwtService;
 import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.exception.IntegrityConstraintViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,8 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    public List<User> getAllUsers(int page, int size){
+        return userRepository.findAll(page, size);
     }
 
     public String updateUser(UserDetails userDetails, UpdateUserDto dto){
@@ -57,7 +58,12 @@ public class UserService {
             }
             user.setEmail(dto.email());
         }
-        userRepository.update(user);
+
+        try {
+            userRepository.update(user);
+        } catch (IntegrityConstraintViolationException e) {
+            throw new AlreadyExistsException("This username or email is already occupied");
+        }
 
         log.info("User {} updated profile", user.getUsername());
         return jwtService.generateToken(new UserDetailsPrincipal(user));

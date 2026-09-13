@@ -14,6 +14,8 @@ import static com.github.qqrayzqq.cargoflow.jooq.Tables.USERS;
 @RequiredArgsConstructor
 public class UserRepository {
 
+    private static final int MAX_PAGE_SIZE = 100;
+
     private final DSLContext dsl;
 
     public Optional<User> findById(Long id) {
@@ -34,8 +36,11 @@ public class UserRepository {
                 .fetchOptionalInto(User.class);
     }
 
-    public List<User> findAll() {
+    public List<User> findAll(int page, int size) {
+        int cappedSize = Math.min(size, MAX_PAGE_SIZE);
         return dsl.selectFrom(USERS)
+                .limit(cappedSize)
+                .offset((long) page * cappedSize)
                 .fetchInto(User.class);
     }
 

@@ -15,6 +15,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CarrierRepository {
 
+    private static final int MAX_PAGE_SIZE = 100;
+
     private final DSLContext dsl;
 
     public Optional<Carrier> findById(Long id) {
@@ -32,7 +34,8 @@ public class CarrierRepository {
                 .fetchOptionalInto(Carrier.class);
     }
 
-    public List<Carrier> findAll() {
+    public List<Carrier> findAll(int page, int size) {
+        int cappedSize = Math.min(size, MAX_PAGE_SIZE);
         return dsl.select(
                         CARRIERS.ID,
                         CARRIERS.NAME,
@@ -40,6 +43,8 @@ public class CarrierRepository {
                         CARRIERS.IS_ACTIVE
                 )
                 .from(CARRIERS)
+                .limit(cappedSize)
+                .offset((long) page * cappedSize)
                 .fetchInto(Carrier.class);
     }
 

@@ -34,8 +34,8 @@ public class UserResolver {
 
     @QueryMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public List<User> getAllUsers(){
-        return userService.getAllUsers();
+    public List<User> getAllUsers(@Argument Integer page, @Argument Integer size){
+        return userService.getAllUsers(page != null ? page : 0, size != null ? size : 20);
     }
 
     @MutationMapping

@@ -4,6 +4,7 @@ import com.github.qqrayzqq.cargoflow.domain.Carrier;
 import com.github.qqrayzqq.cargoflow.dto.carrier.CreateCarrierDto;
 import com.github.qqrayzqq.cargoflow.security.UserDetailsPrincipal;
 import com.github.qqrayzqq.cargoflow.service.CarrierService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -27,8 +28,8 @@ public class CarrierResolver {
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
-    public List<Carrier> getAllCarriers() {
-        return carrierService.getAllCarriers();
+    public List<Carrier> getAllCarriers(@Argument Integer page, @Argument Integer size) {
+        return carrierService.getAllCarriers(page != null ? page : 0, size != null ? size : 20);
     }
 
     @QueryMapping
@@ -39,7 +40,7 @@ public class CarrierResolver {
 
     @MutationMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public Carrier createCarrier(@Argument CreateCarrierDto input) {
+    public Carrier createCarrier(@Argument @Valid CreateCarrierDto input) {
         return carrierService.createCarrier(input);
     }
 

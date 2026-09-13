@@ -23,6 +23,23 @@ type Shipment {
     events: [ShipmentEvent]
 }
 
+type PublicAddress {
+    city: String!
+}
+
+type PublicShipmentEvent {
+    status: ShipmentStatus!
+    createdAt: String!
+}
+
+type PublicShipmentTracking {
+    trackingNumber: String!
+    status: ShipmentStatus!
+    fromAddress: PublicAddress!
+    toAddress: PublicAddress!
+    events: [PublicShipmentEvent]
+}
+
 input AddressInput {
     country: String!
     zip: String!
@@ -48,7 +65,7 @@ input CreateShipmentInput {
 
 extend type Query {
     getShipmentById(id: ID!): Shipment
-    getShipmentByTrackingNumber(trackingNumber: String!): Shipment
+    getShipmentByTrackingNumber(trackingNumber: String!): PublicShipmentTracking
     getMyShipments: [Shipment]
     getAllShipments(page: Int = 0, size: Int = 20): [Shipment]
     getShipmentsByShipperId(shipperId: ID!) : [Shipment]
